@@ -1,4 +1,7 @@
+console.log(`processo principal`)
+
 const { app, BrowserWindow, screen, Menu, shell } = require('electron')
+const path = require("node:path")
 
 function createMainWindow() {
   // Obtém as dimensões do monitor primário
@@ -13,7 +16,9 @@ function createMainWindow() {
     maximizable: true,  // Permite maximizar
     fullscreenable: false,  // Desativa o fullscreen tradicional
     autoHideMenuBar: true,  // Opcional: esconde a barra de menu
-
+    webPreferences:{
+      preload: path.join(__dirname, "preload.js")
+    },
   })
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
   win.loadFile('./src/views/index.html')
@@ -42,7 +47,8 @@ const template = [
       },
       {
         label: "Ferramentas do desenvolvedor",
-        role: "toggleDevTools"
+        role: "toggleDevTools",
+        accelerator: "F12"
       },{type: "separator"},
       {
         label: "Zoom +",
