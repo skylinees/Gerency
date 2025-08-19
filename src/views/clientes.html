@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayMate - Clientes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200 h-screen flex flex-col">
+    <!-- Modal para novo cliente -->
+    <div id="modal-novo-cliente" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Novo Cliente</h3>
+                    <button id="fechar-modal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <form id="form-cliente" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo</label>
+                        <select name="tipo" class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                            <option value="pf">Pessoa Física</option>
+                            <option value="pj">Pessoa Jurídica</option>
+                        </select>
+                    </div>
+                    
+                    <div id="nome-container">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome Completo</label>
+                        <input type="text" name="nome" required class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div id="razao-social-container" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Razão Social</label>
+                        <input type="text" name="razao_social" class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div id="cpf-container">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CPF</label>
+                        <input type="text" name="cpf" required class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div id="cnpj-container" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CNPJ</label>
+                        <input type="text" name="cnpj" class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-mail</label>
+                        <input type="email" name="email" required class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefone</label>
+                        <input type="tel" name="telefone" required class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded">
+                            Cadastrar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Barra lateral -->
+        <aside class="w-56 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="font-semibold text-lg">Menu</h2>
+            </div>
+            <nav class="flex-1 overflow-y-auto p-2">
+                <ul>
+                    <li class="mb-1">
+                        <a href="index.html" class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="mb-1">
+                        <a href="contasareceber.html" class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Contas a Receber
+                        </a>
+                    </li>
+                    <li class="mb-1">
+                        <a href="clientes.html" class="flex items-center p-2 text-blue-600 dark:text-blue-400 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Clientes
+                        </a>
+                    </li>
+                    <li class="mb-1">
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            Relatórios
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="text-sm text-gray-500 dark:text-gray-400">v1.0.0</div>
+            </div>
+        </aside>
+
+        <!-- Área de conteúdo -->
+        <main class="flex-1 overflow-auto p-6 bg-gray-100 dark:bg-gray-900">
+            <!-- Cabeçalho -->
+            <div class="mb-6 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold">Clientes</h2>
+                    <div class="text-sm text-gray-500 dark:text-gray-400" id="data-atual"></div>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="abrir-modal" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded flex items-center">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Novo Cliente
+                    </button>
+                    <button class="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded flex items-center">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabela de clientes -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Contato</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Documento</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-clientes" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Linhas de clientes serão adicionadas aqui dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-600">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">Anterior</button>
+                        <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">Próxima</button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">
+                                Mostrando <span class="font-medium">1</span> a <span class="font-medium">3</span> de <span class="font-medium" id="total-clientes">0</span> resultados
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <span class="sr-only">Anterior</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <button aria-current="page" class="z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 dark:border-blue-700 text-blue-600 dark:text-blue-300 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</button>
+                                <button class="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</button>
+                                <button class="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</button>
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <span class="sr-only">Próxima</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Armazenamento de clientes
+        let clientes = [];
+        
+        // Exibir data atual
+        function formatarData(data) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return data.toLocaleDateString('pt-BR', options);
+        }
+        
+        document.getElementById('data-atual').textContent = formatarData(new Date());
+
+        // Inicializar dark mode
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Controle do modal
+        const modal = document.getElementById('modal-novo-cliente');
+        const abrirModalBtn = document.getElementById('abrir-modal');
+        const fecharModalBtn = document.getElementById('fechar-modal');
+        const formCliente = document.getElementById('form-cliente');
+        const tipoSelect = document.querySelector('select[name="tipo"]');
+        const tabelaClientes = document.getElementById('tabela-clientes');
+        const totalClientesSpan = document.getElementById('total-clientes');
+
+        // Alternar campos baseado no tipo de cliente
+        tipoSelect.addEventListener('change', function() {
+            const isPJ = this.value === 'pj';
+            
+            document.getElementById('nome-container').classList.toggle('hidden', isPJ);
+            document.getElementById('razao-social-container').classList.toggle('hidden', !isPJ);
+            document.getElementById('cpf-container').classList.toggle('hidden', isPJ);
+            document.getElementById('cnpj-container').classList.toggle('hidden', !isPJ);
+            
+            // Adiciona/remove atributo required conforme o tipo
+            document.querySelector('input[name="nome"]').required = !isPJ;
+            document.querySelector('input[name="razao_social"]').required = isPJ;
+            document.querySelector('input[name="cpf"]').required = !isPJ;
+            document.querySelector('input[name="cnpj"]').required = isPJ;
+        });
+
+        // Abrir modal
+        abrirModalBtn.addEventListener('click', function() {
+            modal.classList.remove('hidden');
+        });
+
+        // Fechar modal
+        fecharModalBtn.addEventListener('click', function() {
+            modal.classList.add('hidden');
+        });
+
+        // Fechar modal ao clicar fora
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+
+        // Formulário de cadastro
+        formCliente.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const cliente = Object.fromEntries(formData.entries());
+            
+            // Adiciona data de cadastro
+            cliente.dataCadastro = new Date().toISOString();
+            cliente.status = 'ativo';
+            cliente.id = Date.now(); // ID único
+            
+            // Adiciona ao array de clientes
+            clientes.unshift(cliente); // Adiciona no início do array
+            
+            // Atualiza a tabela
+            atualizarTabelaClientes();
+            
+            // Atualiza contador
+            totalClientesSpan.textContent = clientes.length;
+            
+            // Fechar modal e limpar formulário
+            modal.classList.add('hidden');
+            this.reset();
+            
+            // Mostrar mensagem de sucesso
+            alert('Cliente cadastrado com sucesso!');
+        });
+
+        // Função para atualizar a tabela de clientes
+        function atualizarTabelaClientes() {
+            // Limpa a tabela
+            tabelaClientes.innerHTML = '';
+            
+            // Adiciona cada cliente à tabela
+            clientes.forEach(cliente => {
+                const novaLinha = document.createElement('tr');
+                novaLinha.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
+                
+                const tipo = cliente.tipo === 'pf' ? 'Pessoa Física' : 'Pessoa Jurídica';
+                const nome = cliente.tipo === 'pf' ? cliente.nome : cliente.razao_social;
+                const documento = cliente.tipo === 'pf' ? formatarCPF(cliente.cpf) : formatarCNPJ(cliente.cnpj);
+                const iniciais = cliente.tipo === 'pf' 
+                    ? cliente.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+                    : cliente.razao_social.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                
+                // Cor do avatar baseado no tipo
+                const avatarColor = cliente.tipo === 'pf' ? 'blue' : 'purple';
+                
+                novaLinha.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-${avatarColor}-100 dark:bg-${avatarColor}-900 flex items-center justify-center">
+                                <span class="text-${avatarColor}-600 dark:text-${avatarColor}-300 font-medium">${iniciais}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="font-medium">${nome}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">${cliente.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm">${formatarTelefone(cliente.telefone)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm">${documento}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm">${tipo}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cliente.status === 'ativo' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}">
+                            ${cliente.status === 'ativo' ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3" onclick="editarCliente(${cliente.id})">
+                            Editar
+                        </button>
+                        <button class="${cliente.status === 'ativo' ? 'text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300' : 'text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300'}" 
+                                onclick="toggleStatusCliente(${cliente.id})">
+                            ${cliente.status === 'ativo' ? 'Inativar' : 'Ativar'}
+                        </button>
+                    </td>
+                `;
+                
+                tabelaClientes.appendChild(novaLinha);
+            });
+        }
+
+        // Funções auxiliares para formatação
+        function formatarCPF(cpf) {
+            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+
+        function formatarCNPJ(cnpj) {
+            return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+        }
+
+        function formatarTelefone(telefone) {
+            // Remove tudo que não é dígito
+            const numeros = telefone.replace(/\D/g, '');
+            
+            // Formatação para telefone fixo ou celular
+            if (numeros.length === 10) {
+                return numeros.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+            } else if (numeros.length === 11) {
+                return numeros.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            }
+            return telefone; // Retorna sem formatação se não for 10 ou 11 dígitos
+        }
+
+        // Funções para manipulação de clientes
+        function editarCliente(id) {
+            const cliente = clientes.find(c => c.id === id);
+            if (cliente) {
+                // Preenche o formulário com os dados do cliente
+                tipoSelect.value = cliente.tipo;
+                
+                // Dispara o evento change para mostrar os campos corretos
+                tipoSelect.dispatchEvent(new Event('change'));
+                
+                if (cliente.tipo === 'pf') {
+                    document.querySelector('input[name="nome"]').value = cliente.nome;
+                    document.querySelector('input[name="cpf"]').value = cliente.cpf;
+                } else {
+                    document.querySelector('input[name="razao_social"]').value = cliente.razao_social;
+                    document.querySelector('input[name="cnpj"]').value = cliente.cnpj;
+                }
+                
+                document.querySelector('input[name="email"]').value = cliente.email;
+                document.querySelector('input[name="telefone"]').value = cliente.telefone;
+                
+                // Abre o modal
+                modal.classList.remove('hidden');
+                
+                // Altera o botão para "Atualizar"
+                const submitBtn = formCliente.querySelector('button[type="submit"]');
+                submitBtn.textContent = 'Atualizar Cliente';
+                submitBtn.onclick = function(e) {
+                    e.preventDefault();
+                    atualizarCliente(id);
+                };
+            }
+        }
+
+        function atualizarCliente(id) {
+            const formData = new FormData(formCliente);
+            const clienteAtualizado = Object.fromEntries(formData.entries());
+            
+            // Encontra o índice do cliente no array
+            const index = clientes.findIndex(c => c.id === id);
+            
+            if (index !== -1) {
+                // Mantém os dados originais que não estão no formulário
+                clienteAtualizado.id = id;
+                clienteAtualizado.status = clientes[index].status;
+                clienteAtualizado.dataCadastro = clientes[index].dataCadastro;
+                
+                // Atualiza o cliente no array
+                clientes[index] = clienteAtualizado;
+                
+                // Atualiza a tabela
+                atualizarTabelaClientes();
+                
+                // Fecha o modal e reseta o formulário
+                modal.classList.add('hidden');
+                formCliente.reset();
+                
+                // Restaura o botão para "Cadastrar"
+                const submitBtn = formCliente.querySelector('button[type="submit"]');
+                submitBtn.textContent = 'Cadastrar Cliente';
+                submitBtn.onclick = null;
+                
+                alert('Cliente atualizado com sucesso!');
+            }
+        }
+
+        function toggleStatusCliente(id) {
+            const cliente = clientes.find(c => c.id === id);
+            if (cliente) {
+                cliente.status = cliente.status === 'ativo' ? 'inativo' : 'ativo';
+                atualizarTabelaClientes();
+                
+                const novoStatus = cliente.status === 'ativo' ? 'ativado' : 'inativado';
+                alert(`Cliente ${novoStatus} com sucesso!`);
+            }
+        }
+
+        // Inicializa a tabela (pode carregar dados do localStorage ou API)
+        function inicializar() {
+            // Exemplo de clientes iniciais (pode ser carregado de localStorage)
+            clientes = [
+                {
+                    id: 1,
+                    tipo: 'pf',
+                    nome: 'João Silva',
+                    cpf: '12345678901',
+                    email: 'joao@empresa.com',
+                    telefone: '11999999999',
+                    status: 'ativo',
+                    dataCadastro: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    tipo: 'pj',
+                    razao_social: 'Empresa Tech Ltda',
+                    cnpj: '12345678000199',
+                    email: 'contato@empresatech.com',
+                    telefone: '3137777777',
+                    status: 'ativo',
+                    dataCadastro: new Date().toISOString()
+                }
+            ];
+            
+            atualizarTabelaClientes();
+            totalClientesSpan.textContent = clientes.length;
+        }
+
+        // Inicializa a aplicação
+        document.addEventListener('DOMContentLoaded', inicializar);
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayMate - Clientes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Adicionando a biblioteca SheetJS para exportar Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200 h-screen flex flex-col">
+    <!-- ... (código anterior do modal e estrutura permanece igual) ... -->
+
+    <script>
+        // ... (código anterior de inicialização permanece igual) ...
+
+        // Função para exportar para Excel
+        function exportarParaExcel() {
+            // Prepara os dados para exportação
+            const dadosExportacao = clientes.map(cliente => {
+                return {
+                    'Tipo': cliente.tipo === 'pf' ? 'Pessoa Física' : 'Pessoa Jurídica',
+                    'Nome/Razão Social': cliente.tipo === 'pf' ? cliente.nome : cliente.razao_social,
+                    'Documento': cliente.tipo === 'pf' ? formatarCPF(cliente.cpf) : formatarCNPJ(cliente.cnpj),
+                    'E-mail': cliente.email,
+                    'Telefone': formatarTelefone(cliente.telefone),
+                    'Status': cliente.status === 'ativo' ? 'Ativo' : 'Inativo',
+                    'Data Cadastro': new Date(cliente.dataCadastro).toLocaleDateString('pt-BR')
+                };
+            });
+
+            // Cria uma nova planilha
+            const worksheet = XLSX.utils.json_to_sheet(dadosExportacao);
+            
+            // Ajusta a largura das colunas
+            worksheet['!cols'] = [
+                { width: 15 }, // Tipo
+                { width: 30 }, // Nome/Razão Social
+                { width: 20 }, // Documento
+                { width: 25 }, // E-mail
+                { width: 15 }, // Telefone
+                { width: 10 }, // Status
+                { width: 15 }  // Data Cadastro
+            ];
+
+            // Cria um novo workbook
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Clientes");
+
+            // Gera o arquivo Excel
+            const nomeArquivo = `clientes_paymate_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(workbook, nomeArquivo);
+        }
+
+        // Atualize o evento do botão Exportar
+        document.querySelector('button:contains("Exportar")').addEventListener('click', exportarParaExcel);
+
+        // ... (restante do código permanece igual) ...
+    </script>
+</body>
+</html>
