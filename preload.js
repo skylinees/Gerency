@@ -1,7 +1,10 @@
-const {contextBridge} = require("electron")
+const {contextBridge} = require("electron");
+const {getAllContas} = require("./database/contas/operationsContas");
+
 
 contextBridge.exposeInMainWorld("api", { 
-  verElectron: () => process.versions.electron
+  verElectron: () => process.versions.electron,
+  allContas: async () => getAllContas()
 })
 
 window.addEventListener("DOMContentLoaded", () => {

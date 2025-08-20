@@ -22,6 +22,9 @@
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.12",
+    "sequelize": "^6.37.7",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
     "tailwindcss": "^4.1.12"
   }
 }
