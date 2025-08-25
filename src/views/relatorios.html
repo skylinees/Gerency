@@ -52,6 +52,63 @@
         [type='radio']:checked {
             background-image: none;
         }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+        .dark .modal-content {
+            background-color: #374151;
+        }
+        .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dark .modal-header {
+            border-bottom: 1px solid #4b5563;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        .dark .modal-footer {
+            border-top: 1px solid #4b5563;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200 min-h-screen">
@@ -65,6 +122,79 @@
                 <path d="M10 2a1 1 0 011 1v1a1 1 0 01-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
             </svg>
         </button>
+    </div>
+
+    <!-- Modal de Exportação para Excel -->
+    <div id="exportExcelModal" class="modal">
+        <div class="modal-content dark:bg-gray-800">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold">Exportar para Excel</h3>
+                <button id="closeExportModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Formato do Arquivo</label>
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center">
+                            <input type="radio" name="fileFormat" value="xlsx" checked class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">XLSX (Excel)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="fileFormat" value="csv" class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">CSV</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Intervalo de Dados</label>
+                    <select class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500">
+                        <option>Todos os dados visíveis</option>
+                        <option>Dados filtrados</option>
+                        <option>Página atual</option>
+                        <option>Intervalo personalizado</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Opções</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" checked class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Incluir cabeçalhos das colunas</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Formatação de valores monetários</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" checked class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Manter cores de status</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome do Arquivo</label>
+                    <input type="text" value="Relatorio_PayMate" class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelExport" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                    Cancelar
+                </button>
+                <button id="confirmExport" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Exportar
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Conteúdo principal -->
@@ -142,7 +272,7 @@
                     </nav>
                 </div>
                 <div class="flex space-x-2 mt-4 sm:mt-0">
-                    <button class="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded flex items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <button id="exportButton" class="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded flex items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -281,6 +411,9 @@
                 </div>
             </div>
 
+            <!-- Tabela de Relatórios -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h3 class="text-lg font-medium mb-4">Detalhes das Contas</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -383,6 +516,41 @@
             cards.forEach((card, index) => {
                 card.style.animationDelay = `${index * 0.1}s`;
                 card.classList.add('animate-fade-in');
+            });
+
+            // Modal de exportação para Excel
+            const exportButton = document.getElementById('exportButton');
+            const exportModal = document.getElementById('exportExcelModal');
+            const closeExportModal = document.getElementById('closeExportModal');
+            const cancelExport = document.getElementById('cancelExport');
+            const confirmExport = document.getElementById('confirmExport');
+
+            function openExportModal() {
+                exportModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeExportModalHandler() {
+                exportModal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+
+            exportButton.addEventListener('click', openExportModal);
+            closeExportModal.addEventListener('click', closeExportModalHandler);
+            cancelExport.addEventListener('click', closeExportModalHandler);
+            
+            confirmExport.addEventListener('click', function() {
+                // Simulação de exportação para Excel
+                const format = document.querySelector('input[name="fileFormat"]:checked').value;
+                alert(`Exportando dados para ${format.toUpperCase()}...`);
+                closeExportModalHandler();
+            });
+
+            // Fechar modal clicando fora dele
+            exportModal.addEventListener('click', function(e) {
+                if (e.target === exportModal) {
+                    closeExportModalHandler();
+                }
             });
         });
     </script>
