@@ -1,10 +1,11 @@
-const {contextBridge} = require("electron");
-const {getAllContas} = require("./database/contas/operationsContas");
+const {contextBridge, ipcRenderer} = require("electron");
+//const {getAllContas} = require("./database/contas/operationsContas");
 
 
 contextBridge.exposeInMainWorld("api", { 
   verElectron: () => process.versions.electron,
-  allContas: async () => getAllContas()
+  newClientRegister: (data) => ipcRenderer.send("new-client", data)
+
 })
 
 window.addEventListener("DOMContentLoaded", () => {
