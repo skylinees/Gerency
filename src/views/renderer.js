@@ -1,4 +1,8 @@
-console.log("Renderer")
-console.log(`ELECTRON: ${api.verElectron()}`)
+const form = document.querySelector("#form-cliente");
 
-api.allContas.forEach(conta=>{console.log(conta)})
+form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    api.newClientRegister(data)
+})

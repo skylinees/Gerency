@@ -1,14 +1,19 @@
-const { app, BrowserWindow, screen, Menu, shell } = require('electron')
+const { app, BrowserWindow, screen, Menu, shell, ipcMain } = require('electron')
 const path = require("node:path")
+
+//Db Imports
 const {initalConnectDb} = require("./database/config/connect")
 const {getAllContas} = require("./database/contas/operationsContas")
+const {newClient} = require("./database/users/operationsUsers")
+
+const {template} = require("./windowSettings/toolBar")
 
 
 //Conexão inicial e ciração do banco de dados
 initalConnectDb()
-async function gac() {//query de all users
+/*async function gac() {//query de all users
   (await getAllContas()).forEach(conta => console.log(conta))
-}gac();
+}gac();*/
 
 function createMainWindow() {
   // Obtém as dimensões do monitor primário
@@ -17,8 +22,8 @@ function createMainWindow() {
   const win = new BrowserWindow({
     x: 0,  // Posição X no canto esquerdo
     y: 0,  // Posição Y no topo
-    //width,  // Largura igual à área útil do monitor
-    //height, // Altura igual à área útil do monitor
+    width,  // Largura igual à área útil do monitor
+    height, // Altura igual à área útil do monitor
     icon: './src/public/img/icon-paymate.png', // Adicionar icone,
     maximizable: true,  // Permite maximizar
     fullscreenable: false,  // Desativa o fullscreen tradicional
@@ -31,66 +36,14 @@ function createMainWindow() {
   win.loadFile('./src/views/index.html')
 }
 
-app.whenReady().then(createMainWindow)
+app.whenReady().then(() => {
+  createMainWindow()
+  ipcMain.on("new-client", (event, data) => {
+    async function addClient(data){
+      await newClient(data)
+    }addClient(data)
+  })
+})
 app.on("window-all-closed", () => {
   if (process.platform !== 'darwin') app.quit()
 })
-
-const template = [
-  {
-    label: "Arquivo",
-    submenu: [{
-      label: 'Sair',
-      click: () => app.quit(),
-      accelerator: 'Alt+F4'
-    }]  
-  },
-  {
-    label: "Exibir",
-    submenu: [
-      {
-        label: "Recarregar",
-        role: "reload"
-      },
-      {
-        label: "Ferramentas do desenvolvedor",
-        role: "toggleDevTools",
-        accelerator: "F12"
-      },{type: "separator"},
-      {
-        label: "Zoom +",
-        role: "zoomIn"
-      },
-      {
-        label: "Zoom -",
-        role: "zoomOut"
-      },
-      {
-        label: "Restaurar zoom",
-        role: "resetZoom"
-      }
-    ]
-  },
-  {
-    label: "Ajuda",
-    submenu: [
-      {
-        label: "docs",
-        click: () => shell.openExternal("https://www.electronjs.org/pt/docs/latest/")
-      },{type: "separator"},
-      {
-        label: "Desenvolvedores",
-        submenu: [
-          {
-            label: "Front-End",
-            click: () => shell.openExternal("https://www.linkedin.com/in/wagnermarinho/")
-          },
-          {
-            label: "Back-End",
-            click: () => shell.openExternal("https://www.linkedin.com/in/carlos-kauan-brito-monteiro/")
-          },
-        ] 
-      }
-    ]
-  }
-]
