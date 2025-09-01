@@ -81,6 +81,15 @@
                             Relatórios
                         </a>
                     </li>
+                    <!-- NOVA ABA DE CORRETORES -->
+                    <li class="mb-1">
+                        <a href="corretores.html" class="flex items-center p-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Corretores
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <div class="p-4 border-t border-gray-200 dark:border-gray-700">
@@ -176,7 +185,7 @@
                 <div class="bg-gray-50 dark:bg-gray-700 px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-600">
                     <div class="flex-1 flex justify-between sm:hidden">
                         <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">Anterior</button>
-                        <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">Próxima</button>
+                        <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-70 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">Próxima</button>
                     </div>
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
@@ -210,175 +219,8 @@
     </div>
 
     <!-- Scripts -->
-    <script>
-        // Função para formatar data
-        function formatarData(data) {
-            return new Date(data).toLocaleDateString('pt-BR');
-        }
-
-        // Função para formatar moeda
-        function formatarMoeda(valor) {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
-        }
-
-        // Função para calcular dias até o vencimento
-        function calcularDiasVencimento(dataVencimento) {
-            const hoje = new Date();
-            const vencimento = new Date(dataVencimento);
-            const diffTime = vencimento - hoje;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays;
-        }
-
-        // Dados de exemplo (em um sistema real, isso viria de uma API)
-        const contas = [
-            {
-                cliente: "João Silva",
-                email: "joao@email.com",
-                descricao: "Serviço de consultoria",
-                vencimento: "2023-08-15",
-                valor: 1250.00,
-                status: "pendente"
-            },
-            {
-                cliente: "Maria Souza",
-                email: "maria@email.com",
-                descricao: "Desenvolvimento de site",
-                vencimento: "2023-08-05",
-                valor: 3500.00,
-                status: "pago"
-            },
-            {
-                cliente: "Empresa ABC",
-                email: "contato@empresa.com",
-                descricao: "Hospedagem mensal",
-                vencimento: "2023-08-01",
-                valor: 250.00,
-                status: "vencido"
-            },
-            {
-                cliente: "Carlos Oliveira",
-                email: "carlos@email.com",
-                descricao: "Manutenção de sistema",
-                vencimento: "2023-08-20",
-                valor: 800.00,
-                status: "pendente"
-            },
-            {
-                cliente: "Ana Santos",
-                email: "ana@email.com",
-                descricao: "Design de interface",
-                vencimento: "2023-07-28",
-                valor: 1200.00,
-                status: "vencido"
-            }
-        ];
-
-        // Função para renderizar a tabela
-        function renderizarTabela() {
-            const tabela = document.getElementById('tabela-contas');
-            tabela.innerHTML = '';
-            
-            contas.forEach(conta => {
-                const dias = calcularDiasVencimento(conta.vencimento);
-                let statusText = '';
-                let statusClass = '';
-                let diasText = '';
-                
-                if (conta.status === 'pago') {
-                    statusText = 'Pago';
-                    statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-                } else if (conta.status === 'vencido') {
-                    statusText = 'Vencido';
-                    statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-                    diasText = `<div class="text-xs text-red-500">Vencido</div>`;
-                } else {
-                    statusText = 'Pendente';
-                    statusClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-                    if (dias < 0) {
-                        statusText = 'Vencido';
-                        statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-                        diasText = `<div class="text-xs text-red-500">Vencido</div>`;
-                    } else if (dias <= 3) {
-                        diasText = `<div class="text-xs text-red-500">Vence em ${dias} dias</div>`;
-                    } else if (dias <= 7) {
-                        diasText = `<div class="text-xs text-yellow-500">Vence em ${dias} dias</div>`;
-                    } else {
-                        diasText = `<div class="text-xs text-gray-500">Vence em ${dias} dias</div>`;
-                    }
-                }
-                
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
-                tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="font-medium text-gray-900 dark:text-white">${conta.cliente}</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">${conta.email}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-white">${conta.descricao}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-white">${formatarData(conta.vencimento)}</div>
-                        ${diasText}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900 dark:text-white">${formatarMoeda(conta.valor)}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-badge ${statusClass}">${statusText}</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">Editar</button>
-                        ${conta.status === 'pago' ? 
-                            '<button class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300" disabled>Recebido</button>' : 
-                            '<button class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">Receber</button>'
-                        }
-                    </td>
-                `;
-                tabela.appendChild(tr);
-            });
-        }
-
-        // Função para atualizar a data atual
-        function atualizarDataAtual() {
-            const dataElement = document.getElementById('data-atual');
-            const agora = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            dataElement.textContent = agora.toLocaleDateString('pt-BR', options);
-        }
-
-        // Inicializar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            atualizarDataAtual();
-            renderizarTabela();
-            
-            // Configurar o toggle de tema
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-            const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
-            
-            if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                themeToggleLightIcon.classList.remove('hidden');
-                document.documentElement.classList.add('dark');
-            } else {
-                themeToggleDarkIcon.classList.remove('hidden');
-                document.documentElement.classList.remove('dark');
-            }
-            
-            themeToggleBtn.addEventListener('click', function() {
-                themeToggleDarkIcon.classList.toggle('hidden');
-                themeToggleLightIcon.classList.toggle('hidden');
-                
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('color-theme', 'light');
-                } else {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('color-theme', 'dark');
-                }
-            });
-        });
+    <script src="../public/js/index.js">
+        
     </script>
 </body>
 </html>
