@@ -4,8 +4,10 @@ const {contextBridge, ipcRenderer} = require("electron");
 
 contextBridge.exposeInMainWorld("api", { 
   verElectron: () => process.versions.electron,
-  newClientRegister: (data) => ipcRenderer.send("new-client", data)
 
+  //Register Cliente
+  newClientRequest: (data) => ipcRenderer.send("new-client-request", data), //Pega os dados do front e joga para back
+  newClientResponse: (data) => ipcRenderer.on("new-client-response", data)//Pega o retorno do back e lança pro front
 })
 
 window.addEventListener("DOMContentLoaded", () => {

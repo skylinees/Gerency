@@ -2,10 +2,11 @@ const { DataTypes } = require("sequelize");
 const {connect} = require("../config/connect");
 
 // Definindo modelo User
-const Users = connect.define("contas", {
+const Users = connect.define("users", {
     tipo: {
         type: DataTypes.ENUM('PF','PJ'),
         allowNull: false,
+        defaultValue: "PF"
     },
     nome: {
         type: DataTypes.STRING,
