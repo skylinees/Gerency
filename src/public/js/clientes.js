@@ -1,5 +1,6 @@
 let clientes = [];
 
+console
 // Exibir data atual
 function formatarData(data) {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -245,35 +246,19 @@ function toggleStatusCliente(id) {
         alert(`Cliente ${novoStatus} com sucesso!`);
     }
 }
-
 // Inicializa a tabela (pode carregar dados do localStorage ou API)
-function inicializar() {
-    // Exemplo de clientes iniciais (pode ser carregado de localStorage)
-    clientes = [
-        {
-            id: 1,
-            tipo: 'pf',
-            nome: 'João Silva',
-            cpf: '12345678901',
-            email: 'joao@empresa.com',
-            telefone: '11999999999',
-            status: 'ativo',
-            dataCadastro: new Date().toISOString()
-        },
-        {
-            id: 2,
-            tipo: 'pj',
-            razao_social: 'Empresa Tech Ltda',
-            cnpj: '12345678000199',
-            email: 'contato@empresatech.com',
-            telefone: '3137777777',
-            status: 'ativo',
-            dataCadastro: new Date().toISOString()
-        }
-    ];
+async function inicializar() {
 
-    atualizarTabelaClientes();
-    totalClientesSpan.textContent = clientes.length;
+    await api.syncClientsRequest()
+    await api.syncClientsResponse((event, response) => {
+        clientes = response;
+        console.log(response);
+
+        atualizarTabelaClientes();
+        totalClientesSpan.textContent = clientes.length;
+        console.log("TOTAL CLIENTES", totalClientesSpan.textContent);
+    });
+
 }
 
 // Inicializa a aplicação

@@ -1,5 +1,4 @@
 const form = document.querySelector("#form-cliente");
-
 form.addEventListener("submit", (e) => {
     e.preventDefault();
     const formData = new FormData(form);
