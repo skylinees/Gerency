@@ -1,5 +1,15 @@
 const users = require("./modalUsers");
 
+async function formatDataClients (clients){
+    let formatedData = []
+    clients.forEach(user => {
+        //console.log(user.dataValues);
+        formatedData.push(user.dataValues)
+    });
+    console.log('---------------------',formatedData);
+    return formatedData;
+}
+
 async function newClient(data){
     try {
         const newUser = await users.create({
@@ -16,7 +26,9 @@ async function newClient(data){
 
 async function getAllClientes() {
     try{
-       return await users.findAll();
+        console.log("buscando clientes")
+        let allUsers = await users.findAll();
+       return await formatDataClients(allUsers)
     }catch(err){console.log("Erro ao consultar clientes: ", err); return "err"}
 }
 

@@ -1,9 +1,12 @@
 const {contextBridge, ipcRenderer} = require("electron");
 //const {getAllContas} = require("./database/contas/operationsContas");
 
-
 contextBridge.exposeInMainWorld("api", { 
   verElectron: () => process.versions.electron,
+
+  //SYNC DATA CLIENTES PELO BANCO DE DADOS
+  syncClientsRequest: (data) => ipcRenderer.send("all-clients-request"),
+  syncClientsResponse: (data) => ipcRenderer.on("all-clients-response", data),
 
   //Register Cliente
   newClientRequest: (data) => ipcRenderer.send("new-client-request", data), //Pega os dados do front e joga para back

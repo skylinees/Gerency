@@ -36,13 +36,24 @@ function createMainWindow() {
 app.whenReady().then(() => {
   createMainWindow()
   ipcMain.on("new-client-request", (event, data) => {
+    console.log("REGISTRANDO CLIENTE")
     newClient(data)
       .then(userInDb => {
         let client = userInDb.dataValues
-        console.log("NOVO CLIENTE REGISTRADO...", client)
         event.reply("new-client-response", client)
       })
       .catch(err => console.log("Erro ao registrar cliente", err))
+  })
+
+  ipcMain.on("all-clients-request", (event, data)=>{
+    console.log("Solicitando clientes ao banco de dados")
+    getAllClientes()
+      .then(clients => {
+        getAllClientes()
+          .then(clients => event.reply("all-clients-response", clients))
+          .catch(err => console.log("erro ao solicitar todos clientes", err))
+      })
+      .catch(err => console.log("Erro ao buscar todos os clientes", err))
   })
 })
 app.on("window-all-closed", () => {
