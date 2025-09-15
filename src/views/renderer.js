@@ -5,6 +5,6 @@ form.addEventListener("submit", (e) => {
     const data = Object.fromEntries(formData.entries());
     api.newClientRequest(data)
     let newClient;
-    api.newClientResponse((event, data) => console.log(data));
+    api.newClientResponse((_, data) => console.log(data));
     console.log(newClient);
 })

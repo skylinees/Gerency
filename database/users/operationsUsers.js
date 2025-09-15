@@ -27,9 +27,27 @@ async function newClient(data){
 async function getAllClientes() {
     try{
         console.log("buscando clientes")
-        let allUsers = await users.findAll();
+        let allUsers = await users.findAll({where});
        return await formatDataClients(allUsers)
     }catch(err){console.log("Erro ao consultar clientes: ", err); return "err"}
 }
 
-module.exports = {newClient, getAllClientes}
+async function getClientsPagination(page) {
+    console.log("Consultando clientes da pagina ", page)
+    try{
+        const itensForPage = 10
+        const offSet = (page - 1)  * itensForPage
+        const {count, rows} = await users.findAndCountAll({
+            limit: itensForPage,
+            offset: offSet
+        })
+       return await {
+        totalRegisters: count,
+        totalPages: Math.ceil(count/ itensForPage),
+        currentPage: page,
+        registers: await formatDataClients(rows)
+       }
+    }catch(err){console.log("Erro ao consultar clientes: ", err); return "err"}
+}
+
+module.exports = {newClient, getAllClientes, getClientsPagination}
