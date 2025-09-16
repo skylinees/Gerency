@@ -1,4 +1,8 @@
 // clientes.js
+api.syncClientsPaginationRequest(1)
+api.syncClientsPaginationResponse((_, data) => {
+    console.log(data)
+})
 
 // Variáveis globais
 let clientes = [];

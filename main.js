@@ -58,11 +58,16 @@ app.whenReady().then(() => {
   //Get all contas no banco
   ipcMain.on("all-debts-request", (event)=>{
     console.log("Solicitando contas ao banco de dados")
-    getClientsPagination(1)
-        .then(res => console.log(res))
     getAllContas()
         .then(contas => event.reply("all-debts-response", contas))
         .catch(err => console.log("Erro ao solicitar todas contas", err))
+  })
+
+  ipcMain.on("pagination-clients-request", (event, data)=>{
+    console.log(`Solicitando paginação ${data} ao banco`)
+    getClientsPagination(data)
+        .then(response => event.reply("pagination-clients-response", response))
+        .catch(err=> console.log(err))
   })
 })
 app.on("window-all-closed", () => {
