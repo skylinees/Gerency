@@ -1,5 +1,4 @@
 const {contextBridge, ipcRenderer} = require("electron");
-//const {getAllContas} = require("./database/contas/operationsContas");
 
 contextBridge.exposeInMainWorld("api", { 
   verElectron: () => process.versions.electron,
@@ -8,17 +7,16 @@ contextBridge.exposeInMainWorld("api", {
   syncDebtsRequest: () => ipcRenderer.send("all-debts-request"),
   syncDebtsResponse: (data) => ipcRenderer.on("all-debts-response", data),
 
-  //SYNC DATA CLIENTES PELO BANCO DE DADOS
-  syncClientsRequest: () => ipcRenderer.send("all-clients-request"),
-  syncClientsResponse: (data) => ipcRenderer.on("all-clients-response", data),
-
   //SYNC DATA CLIENTS FOR PARGINATION 1O ITENS
-  syncClientsPaginationRequest: (data) => ipcRenderer.send("pagination-clients-request", data),
-  syncClientsPaginationResponse: (data) => ipcRenderer.on("pagination-clients-request",data),
+  syncClientsPgRequest: (data) => ipcRenderer.send("pagination-clients-request", data),
+  syncClientsPgResponse: (data) => ipcRenderer.on("pagination-clients-response",data),
 
   //Register Cliente
   newClientRequest: (data) => ipcRenderer.send("new-client-request", data), //Pega os dados do front e joga para back
-  newClientResponse: (data) => ipcRenderer.on("new-client-response", data)//Pega o retorno do back e lança pro front
+  newClientResponse: (data) => ipcRenderer.on("new-client-response", data),//Pega o retorno do back e lança pro front
+
+  getInforTableRequest: (data) => ipcRenderer.send("get-infor-table-request", data), //Pega os dados do front e joga para back
+  getInforTableResponse: (data) => ipcRenderer.on("get-infor-table-response", data)//Pega o retorno do back e lança pro front
 })
 
 window.addEventListener("DOMContentLoaded", () => {

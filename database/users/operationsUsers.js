@@ -24,14 +24,6 @@ async function newClient(data){
     }catch (err) {console.log("Erro ao registrar novo cliente", err); return "err"}
 }
 
-async function getAllClientes() {
-    try{
-        console.log("buscando clientes")
-        let allUsers = await users.findAll({where});
-       return await formatDataClients(allUsers)
-    }catch(err){console.log("Erro ao consultar clientes: ", err); return "err"}
-}
-
 async function getClientsPagination(page) {
     console.log("Consultando clientes da pagina ", page)
     try{
@@ -50,4 +42,16 @@ async function getClientsPagination(page) {
     }catch(err){console.log("Erro ao consultar clientes: ", err); return "err"}
 }
 
-module.exports = {newClient, getAllClientes, getClientsPagination}
+async function getInforTableClients() {
+     console.log("Consultado Informaçãos da paginação de clientes ")
+    try{
+        const itensForPage = 10
+        const {count} = await users.findAndCountAll()
+       return await {
+        totalRegisters: count,
+        totalPages: Math.ceil(count/ itensForPage)
+       }
+    }catch(err){console.log("Erro ao consultar informação da paginação de clientes: ", err); return "err"}
+}
+
+module.exports = {newClient, getClientsPagination, getInforTableClients}

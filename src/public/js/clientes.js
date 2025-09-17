@@ -1,59 +1,65 @@
-// clientes.js
-api.syncClientsPaginationRequest(1)
-api.syncClientsPaginationResponse((_, data) => {
-    console.log(data)
+// clientes.js - Sistema de gestão de clientes
+let clientes = []
+let sect = document.querySelector("#paginationClients")
+renderPagination(sect, "clientes")
+//
+sect.addEventListener("click", (event)=>{
+    if(event.target.matches(".btn-genereted")){
+        let page = parseInt(event.target.value);
+        console.log("CLICOU EM ", page,"NA PAGINAÇÃO")
+        carregarClientes(page)
+    }
 })
-
+//
 // Variáveis globais
-let clientes = [];
-let clienteEditando = null;
-
-// Elementos DOM
-const modalNovoCliente = document.getElementById('modal-novo-cliente');
-const abrirModalBtn = document.getElementById('abrir-modal');
-const fecharModalBtn = document.getElementById('fechar-modal');
-const formCliente = document.getElementById('form-cliente');
-const tabelaClientes = document.getElementById('tabela-clientes');
-const totalClientesSpan = document.getElementById('total-clientes');
-const selectTipo = document.querySelector('select[name="tipo"]');
+// Cache de elementos DOM
+const elementos = {
+    modalNovoCliente: document.getElementById('modal-novo-cliente'),
+    abrirModalBtn: document.getElementById('abrir-modal'),
+    fecharModalBtn: document.getElementById('fechar-modal'),
+    formCliente: document.getElementById('form-cliente'),
+    tabelaClientes: document.getElementById('tabela-clientes'),
+    totalClientesSpan: document.getElementById('total-clientes'),
+    selectTipo: document.querySelector('select[name="tipo"]'),
+    dataElement: document.getElementById('data-atual'),
+    themeToggleBtn: document.getElementById('theme-toggle'),
+    themeToggleDarkIcon: document.getElementById('theme-toggle-dark-icon'),
+    themeToggleLightIcon: document.getElementById('theme-toggle-light-icon')
+};
 
 // Inicialização
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', inicializarSistema);
+
+function inicializarSistema() {
     carregarClientes();
     atualizarData();
     configurarEventListeners();
     configurarTema();
-});
+}
 
 // Configurar event listeners
 function configurarEventListeners() {
-    // Modal
+    const { abrirModalBtn, fecharModalBtn, selectTipo, formCliente, modalNovoCliente } = elementos;
+    
     abrirModalBtn.addEventListener('click', () => abrirModal());
     fecharModalBtn.addEventListener('click', fecharModal);
-    
-    // Alternar campos conforme tipo de cliente
     selectTipo.addEventListener('change', alternarCamposTipoCliente);
-    
-    // Formulário
     formCliente.addEventListener('submit', salvarCliente);
     
-    // Fechar modal ao clicar fora dele
-    modalNovoCliente.addEventListener('click', function(e) {
-        if (e.target === modalNovoCliente) {
-            fecharModal();
-        }
+    modalNovoCliente.addEventListener('click', (e) => {
+        if (e.target === modalNovoCliente) fecharModal();
     });
 }
 
 // Configurar tema claro/escuro
 function configurarTema() {
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-    const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+    const { themeToggleBtn, themeToggleDarkIcon, themeToggleLightIcon } = elementos;
     
-    // Verificar se há preferência salva ou usar preferência do sistema
-    if (localStorage.getItem('color-theme') === 'dark' || 
-        (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    // Verificar preferência de tema
+    const isDark = localStorage.getItem('color-theme') === 'dark' || 
+                  (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    if (isDark) {
         document.documentElement.classList.add('dark');
         themeToggleLightIcon.classList.remove('hidden');
         themeToggleDarkIcon.classList.add('hidden');
@@ -64,7 +70,7 @@ function configurarTema() {
     }
     
     // Alternar tema
-    themeToggleBtn.addEventListener('click', function() {
+    themeToggleBtn.addEventListener('click', () => {
         themeToggleDarkIcon.classList.toggle('hidden');
         themeToggleLightIcon.classList.toggle('hidden');
         
@@ -80,7 +86,7 @@ function configurarTema() {
 
 // Atualizar data atual
 function atualizarData() {
-    const dataElement = document.getElementById('data-atual');
+    const { dataElement } = elementos;
     const hoje = new Date();
     const options = { 
         weekday: 'long', 
@@ -93,62 +99,65 @@ function atualizarData() {
 
 // Alternar campos conforme tipo de cliente (PF/PJ)
 function alternarCamposTipoCliente() {
-    const tipo = selectTipo.value;
-    const nomeContainer = document.getElementById('nome-container');
-    const razaoSocialContainer = document.getElementById('razao-social-container');
-    const cpfContainer = document.getElementById('cpf-container');
-    const cnpjContainer = document.getElementById('cnpj-container');
+    const tipo = elementos.selectTipo.value;
+    const campos = {
+        nome: document.getElementById('nome-container'),
+        razaoSocial: document.getElementById('razao-social-container'),
+        cpf: document.getElementById('cpf-container'),
+        cnpj: document.getElementById('cnpj-container')
+    };
     
-    if (tipo === 'PF') {
-        nomeContainer.classList.remove('hidden');
-        razaoSocialContainer.classList.add('hidden');
-        cpfContainer.classList.remove('hidden');
-        cnpjContainer.classList.add('hidden');
-        
-        // Tornar campos obrigatórios conforme necessário
-        document.querySelector('input[name="nome"]').setAttribute('required', '');
-        document.querySelector('input[name="cpf"]').setAttribute('required', '');
-        document.querySelector('input[name="razao_social"]').removeAttribute('required');
-        document.querySelector('input[name="cnpj"]').removeAttribute('required');
-    } else {
-        nomeContainer.classList.add('hidden');
-        razaoSocialContainer.classList.remove('hidden');
-        cpfContainer.classList.add('hidden');
-        cnpjContainer.classList.remove('hidden');
-        
-        // Tornar campos obrigatórios conforme necessário
-        document.querySelector('input[name="razao_social"]').setAttribute('required', '');
-        document.querySelector('input[name="cnpj"]').setAttribute('required', '');
-        document.querySelector('input[name="nome"]').removeAttribute('required');
-        document.querySelector('input[name="cpf"]').removeAttribute('required');
-    }
+    const isPF = tipo === 'PF';
+    
+    // Alternar visibilidade
+    campos.nome.classList.toggle('hidden', !isPF);
+    campos.razaoSocial.classList.toggle('hidden', isPF);
+    campos.cpf.classList.toggle('hidden', !isPF);
+    campos.cnpj.classList.toggle('hidden', isPF);
+    
+    // Alternar obrigatoriedade
+    document.querySelector('input[name="nome"]').toggleAttribute('required', isPF);
+    document.querySelector('input[name="cpf"]').toggleAttribute('required', isPF);
+    document.querySelector('input[name="razao_social"]').toggleAttribute('required', !isPF);
+    document.querySelector('input[name="cnpj"]').toggleAttribute('required', !isPF);
 }
 
 // Abrir modal para novo cliente ou edição
 function abrirModal(cliente = null) {
     clienteEditando = cliente;
+    const { formCliente, selectTipo, modalNovoCliente } = elementos;
     
-    // Limpar formulário se for um novo cliente
     if (!cliente) {
+        // Novo cliente
         formCliente.reset();
         selectTipo.value = 'PF';
         alternarCamposTipoCliente();
         document.querySelector('button[type="submit"]').textContent = 'Cadastrar Cliente';
     } else {
-        // Preencher formulário com dados do cliente para edição
+        // Editar cliente existente
         selectTipo.value = cliente.tipo;
         alternarCamposTipoCliente();
         
+        // Preencher formulário
+        const campos = {
+            nome: document.querySelector('input[name="nome"]'),
+            cpf: document.querySelector('input[name="cpf"]'),
+            razao_social: document.querySelector('input[name="razao_social"]'),
+            cnpj: document.querySelector('input[name="cnpj"]'),
+            email: document.querySelector('input[name="email"]'),
+            telefone: document.querySelector('input[name="telefone"]')
+        };
+        
         if (cliente.tipo === 'PF') {
-            document.querySelector('input[name="nome"]').value = cliente.nome || '';
-            document.querySelector('input[name="cpf"]').value = cliente.cpf || '';
+            campos.nome.value = cliente.nome || '';
+            campos.cpf.value = cliente.cpf || '';
         } else {
-            document.querySelector('input[name="razao_social"]').value = cliente.razao_social || '';
-            document.querySelector('input[name="cnpj"]').value = cliente.cnpj || '';
+            campos.razao_social.value = cliente.razao_social || '';
+            campos.cnpj.value = cliente.cnpj || '';
         }
         
-        document.querySelector('input[name="email"]').value = cliente.email || '';
-        document.querySelector('input[name="telefone"]').value = cliente.telefone || '';
+        campos.email.value = cliente.email || '';
+        campos.telefone.value = cliente.telefone || '';
         document.querySelector('button[type="submit"]').textContent = 'Atualizar Cliente';
     }
     
@@ -157,7 +166,7 @@ function abrirModal(cliente = null) {
 
 // Fechar modal
 function fecharModal() {
-    modalNovoCliente.classList.add('hidden');
+    elementos.modalNovoCliente.classList.add('hidden');
     clienteEditando = null;
 }
 
@@ -165,7 +174,7 @@ function fecharModal() {
 function salvarCliente(e) {
     e.preventDefault();
     
-    const formData = new FormData(formCliente);
+    const formData = new FormData(elementos.formCliente);
     const cliente = {
         tipo: formData.get('tipo'),
         nome: formData.get('nome'),
@@ -175,10 +184,10 @@ function salvarCliente(e) {
         email: formData.get('email'),
         telefone: formData.get('telefone'),
         status: 'Ativo',
-        id: clienteEditando ? clienteEditando.id : Date.now() // Usar timestamp como ID simples
+        id: clienteEditando ? clienteEditando.id : Date.now()
     };
     
-    // Validações básicas
+    // Validações
     if (cliente.tipo === 'PF' && !validarCPF(cliente.cpf)) {
         alert('CPF inválido!');
         return;
@@ -194,62 +203,28 @@ function salvarCliente(e) {
         return;
     }
     
+    // Salvar cliente
     if (clienteEditando) {
-        // Atualizar cliente existente
         const index = clientes.findIndex(c => c.id === clienteEditando.id);
-        if (index !== -1) {
-            clientes[index] = cliente;
-        }
+        if (index !== -1) clientes[index] = cliente;
     } else {
-        // Adicionar novo cliente
         clientes.push(cliente);
     }
     
-    // Salvar no localStorage
     salvarClientesNoStorage();
-    
-    // Atualizar tabela
     renderizarTabelaClientes();
-    
-    // Fechar modal e limpar formulário
     fecharModal();
-    formCliente.reset();
 }
 
 // Carregar clientes do localStorage ou da API
-function carregarClientes() {
-    // Verificar se temos uma variável global clientList (da API)
-    if (typeof clientList !== 'undefined' && clientList && clientList.length > 0) {
-        clientes = clientList;
-        console.log('Clientes carregados da API:', clientes);
-    } else {
-        // Se não, tentar carregar do localStorage
+function carregarClientes(page) {
+    // Tentar carregar da API primeiro
+    buscarClientesDaAPI(page);    
+    // Se não houver clientes da API, carregar do localStorage
+    if (clientes.length === 0) {
         const clientesSalvos = localStorage.getItem('paymate_clientes');
         if (clientesSalvos) {
             clientes = JSON.parse(clientesSalvos);
-        } else {
-            // Dados iniciais de exemplo
-            clientes = [
-                {
-                    id: 1,
-                    tipo: 'PF',
-                    nome: 'Carlos Kauan',
-                    cpf: '123.456.789-00',
-                    email: 'carloskauan@gmail.com',
-                    telefone: '(86) 99590-6122',
-                    status: 'Ativo'
-                },
-                {
-                    id: 2,
-                    tipo: 'PJ',
-                    razao_social: 'Empresa XYZ Ltda',
-                    cnpj: '12.345.678/0001-90',
-                    email: 'contato@xyz.com',
-                    telefone: '(11) 3456-7890',
-                    status: 'Ativo'
-                }
-            ];
-            salvarClientesNoStorage();
         }
     }
     
@@ -263,6 +238,7 @@ function salvarClientesNoStorage() {
 
 // Renderizar tabela de clientes
 function renderizarTabelaClientes() {
+    const { tabelaClientes, totalClientesSpan } = elementos;
     tabelaClientes.innerHTML = '';
     totalClientesSpan.textContent = clientes.length;
     
@@ -277,19 +253,16 @@ function renderizarTabelaClientes() {
         return;
     }
     
+    // Fragmento de documento para melhor performance
+    const fragment = document.createDocumentFragment();
+    
     clientes.forEach(cliente => {
         const row = document.createElement('tr');
-        
-        // Determinar nome para exibição
-        const nomeExibicao = cliente.tipo === 'PF' ? cliente.nome : cliente.razao_social;
-        
-        // Determinar documento para exibição
-        const documentoExibicao = cliente.tipo === 'PF' ? 
-            formatarCPF(cliente.cpf) : formatarCNPJ(cliente.cnpj);
+        const nomeExibicao =cliente.nome
+        const documentoExibicao = cliente.tipo === 'PF' ? formatarCPF(cliente.cpf) : formatarCNPJ(cliente.cnpj);
         
         // Gerar iniciais para o avatar
-        const iniciais = nomeExibicao
-            .split(' ')
+        const iniciais = nomeExibicao.split(" ")
             .map(nome => nome[0])
             .join('')
             .toUpperCase()
@@ -334,27 +307,31 @@ function renderizarTabelaClientes() {
             </td>
         `;
         
-        tabelaClientes.appendChild(row);
+        fragment.appendChild(row);
     });
     
-    // Adicionar event listeners para os botões de editar e excluir
-    document.querySelectorAll('.editar-cliente').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = parseInt(this.getAttribute('data-id'));
+    tabelaClientes.appendChild(fragment);
+    // Adicionar event listeners
+    delegarEventosTabela();
+}
+
+// Delegação de eventos para melhor performance
+function delegarEventosTabela() {
+    elementos.tabelaClientes.addEventListener('click', (e) => {
+        const { target } = e;
+        
+        if (target.classList.contains('editar-cliente')) {
+            const id = parseInt(target.getAttribute('data-id'));
             const cliente = clientes.find(c => c.id === id);
-            if (cliente) {
-                abrirModal(cliente);
-            }
-        });
-    });
-    
-    document.querySelectorAll('.excluir-cliente').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = parseInt(this.getAttribute('data-id'));
+            if (cliente) abrirModal(cliente);
+        }
+        
+        if (target.classList.contains('excluir-cliente')) {
+            const id = parseInt(target.getAttribute('data-id'));
             if (confirm('Tem certeza que deseja excluir este cliente?')) {
                 excluirCliente(id);
             }
-        });
+        }
     });
 }
 
@@ -367,13 +344,13 @@ function excluirCliente(id) {
 
 // Funções de validação e formatação
 function validarCPF(cpf) {
-    // Implementação simplificada - na prática, use uma validação completa de CPF
+    if (!cpf) return false;
     cpf = cpf.replace(/\D/g, '');
     return cpf.length === 11;
 }
 
 function validarCNPJ(cnpj) {
-    // Implementação simplificada - na prática, use uma validação completa de CNPJ
+    if (!cnpj) return false;
     cnpj = cnpj.replace(/\D/g, '');
     return cnpj.length === 14;
 }
@@ -398,34 +375,32 @@ function formatarCNPJ(cnpj) {
 function formatarTelefone(telefone) {
     if (!telefone) return '';
     
-    // Remove tudo que não é dígito
     const numeros = telefone.replace(/\D/g, '');
     
-    // Formatação para telefone fixo ou celular
     if (numeros.length === 10) {
         return numeros.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
     } else if (numeros.length === 11) {
         return numeros.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
     }
-    return telefone; // Retorna sem formatação se não for 10 ou 11 dígitos
+    
+    return telefone;
 }
 
-// Função para buscar clientes da API (se disponível)
-function buscarClientesDaAPI() {
-    // Verificar se a API está disponível
-    if (typeof api !== 'undefined' && typeof api.getAllClients === 'function') {
-        try {
-            const clientesAPI = api.getAllClients();
-            if (clientesAPI && clientesAPI.length > 0) {
-                clientes = clientesAPI;
-                renderizarTabelaClientes();
-                console.log('Clientes carregados da API:', clientes);
-            }
-        } catch (error) {
-            console.error('Erro ao buscar clientes da API:', error);
-        }
+// Função para buscar clientes da API
+function buscarClientesDaAPI(page) {
+    try {
+        const pagina = page || 1
+       api.syncClientsPgRequest(pagina);
+        api.syncClientsPgResponse((_, data) => {
+            clientes = data.registers;
+            renderizarTabelaClientes();
+        })
+
+    } catch (error) {
+        console.error('Erro ao buscar clientes da API:', error);
     }
 }
 
-// Inicializar a busca de clientes da API
-buscarClientesDaAPI();
+console.log("CARREGAR CLIENTES DO FINAL")
+//FUNÇÃO A SER UTILIZADA PARA CARREAGAR CLIENTE COM A PAGINAÇÃO
+carregarClientes(3)

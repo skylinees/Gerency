@@ -4,7 +4,7 @@ const path = require("node:path")
 //Db Imports
 const {initalConnectDb} = require("./database/config/connect")
 const {getAllContas} = require("./database/contas/operationsContas")
-const {newClient, getAllClientes, getClientsPagination} = require("./database/users/operationsUsers")
+const {newClient, getClientsPagination, getInforTableClients} = require("./database/users/operationsUsers")
 
 const {template} = require("./windowSettings/toolBar")
 
@@ -47,14 +47,6 @@ app.whenReady().then(() => {
       .catch(err => console.log("Erro ao registrar cliente", err))
   })
 
-  //Get clients no database
-  ipcMain.on("all-clients-request", (event)=>{
-    console.log("Solicitando clientes ao banco de dados")
-    getAllClientes()
-        .then(clients => event.reply("all-clients-response", clients))
-        .catch(err => console.log("erro ao solicitar todos clientes", err))
-  })
-
   //Get all contas no banco
   ipcMain.on("all-debts-request", (event)=>{
     console.log("Solicitando contas ao banco de dados")
@@ -64,10 +56,22 @@ app.whenReady().then(() => {
   })
 
   ipcMain.on("pagination-clients-request", (event, data)=>{
-    console.log(`Solicitando paginação ${data} ao banco`)
     getClientsPagination(data)
-        .then(response => event.reply("pagination-clients-response", response))
-        .catch(err=> console.log(err))
+      .then(response => event.reply("pagination-clients-response", response))
+      .catch(err => console.log("Erro ao consultar clientes paginados", err))
+  })
+
+  ipcMain.on("get-infor-table-request", (event, data)=>{
+    switch(data){
+      case "clients":
+        getInforTableClients()
+          .then(data => event.reply("get-infor-table-response",data))
+          .catch(err => console.log("Erro a solictar informações de paginação", err))
+      break;
+      case "contas":
+        console.log("table infor contas")
+      break;
+    }
   })
 })
 app.on("window-all-closed", () => {
