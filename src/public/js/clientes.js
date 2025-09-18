@@ -405,3 +405,198 @@ function buscarClientesDaAPI(page) {
 console.log("CARREGAR CLIENTES DO FINAL")
 //FUNÇÃO A SER UTILIZADA PARA CARREAGAR CLIENTE COM A PAGINAÇÃO
 carregarClientes(3)
+
+
+// Função para buscar clientes por nome
+function buscarClientesPorNome(termo) {
+    if (!termo || termo.trim() === '') {
+        return clientes; // Retorna todos os clientes se não houver termo de busca
+    }
+    
+    const termoLower = termo.toLowerCase().trim();
+    
+    // Filtrar clientes pelo nome (busca parcial case-insensitive)
+    return clientes.filter(cliente => {
+        const nomeCliente = cliente.nome ? cliente.nome.toLowerCase() : '';
+        return nomeCliente.includes(termoLower);
+    });
+}
+
+// Função para exibir resultados da busca
+function exibirResultadosBusca(resultados) {
+    const { tabelaClientes } = elementos;
+    tabelaClientes.innerHTML = '';
+    
+    if (resultados.length === 0) {
+        tabelaClientes.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    Nenhum cliente encontrado para a busca realizada.
+                </td>
+            </tr>
+            <br>
+        `;
+        return;
+    }
+    
+    // Fragmento de documento para melhor performance
+    const fragment = document.createDocumentFragment();
+    
+    resultados.forEach(cliente => {
+        const row = document.createElement('tr');
+        const nomeExibicao = cliente.nome || cliente.razao_social || 'Nome não informado';
+        const documentoExibicao = cliente.tipo === 'PF' ? 
+            formatarCPF(cliente.cpf) : 
+            formatarCNPJ(cliente.cnpj);
+        
+        // Gerar iniciais para o avatar
+        const iniciais = nomeExibicao.split(" ")
+            .map(nome => nome[0])
+            .join('')
+            .toUpperCase()
+            .substring(0, 2);
+        
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                        <div class="h-10 w-10 rounded-full bg-primary-600 flex items-center justify-center text-white">
+                            ${iniciais}
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">${nomeExibicao}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${cliente.email || 'Email não informado'}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 dark:text-white">${cliente.email || 'Email não informado'}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">${formatarTelefone(cliente.telefone) || 'Telefone não informado'}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                ${documentoExibicao || 'Documento não informado'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                ${cliente.tipo === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    ${cliente.status || 'Ativo'}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 editar-cliente" data-id="${cliente.id}">
+                    Editar
+                </button>
+                <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 excluir-cliente" data-id="${cliente.id}">
+                    Excluir
+                </button>
+            </td>
+        `;
+        
+        fragment.appendChild(row);
+    });
+    
+    tabelaClientes.appendChild(fragment);
+    // Adicionar event listeners para os botões de editar/excluir
+    delegarEventosTabela();
+}
+
+// Integração com a interface - adicionar campo de busca
+function adicionarCampoBusca() {
+    // Verificar se já existe um campo de busca para não duplicar
+    if (document.getElementById('campo-busca-clientes')) {
+        return;
+    }
+    
+    // Criar elemento de busca
+    const header = document.querySelector('.mb-6.flex.justify-between.items-center');
+    const buscaContainer = document.createElement('div');
+    buscaContainer.className = 'flex items-center mt-4';
+    buscaContainer.innerHTML = `
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <input 
+                type="text" 
+                id="campo-busca-clientes" 
+                placeholder="Buscar clientes por nome..." 
+                class="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600"
+            >
+        </div>
+        <button id="limpar-busca" class="ml-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hidden">
+            Limpar
+        </button>
+    `;
+    
+    // Inserir após o header
+    header.parentNode.insertBefore(buscaContainer, header.nextSibling);
+    
+    // Adicionar event listeners
+    const campoBusca = document.getElementById('campo-busca-clientes');
+    const btnLimpar = document.getElementById('limpar-busca');
+    
+    campoBusca.addEventListener('input', (e) => {
+        const termo = e.target.value;
+        const resultados = buscarClientesPorNome(termo);
+        exibirResultadosBusca(resultados);
+        
+        // Mostrar/ocultar botão de limpar
+        if (termo.trim() !== '') {
+            btnLimpar.classList.remove('hidden');
+        } else {
+            btnLimpar.classList.add('hidden');
+            renderizarTabelaClientes(); // Volta a exibir todos os clientes
+        }
+    });
+    
+    btnLimpar.addEventListener('click', () => {
+        campoBusca.value = '';
+        btnLimpar.classList.add('hidden');
+        renderizarTabelaClientes(); // Volta a exibir todos os clientes
+    });
+}
+
+// Adicionar campo de busca quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', () => {
+    // Aguardar um pouco para garantir que a tabela foi renderizada primeiro
+    setTimeout(adicionarCampoBusca, 100);
+});
+
+// Atualizar a função carregarClientes para usar a API real
+function carregarClientes(page) {
+    try {
+        const pagina = page || 1;
+        api.syncClientsPgRequest(pagina);
+        api.syncClientsPgResponse((_, data) => {
+            if (data && data.registers) {
+                clientes = data.registers;
+                renderizarTabelaClientes();
+                
+                // Atualizar a paginação se necessário
+                if (data.totalPages && data.totalPages > 1) {
+                    atualizarPaginacao(data.currentPage, data.totalPages);
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao buscar clientes da API:', error);
+        
+        // Fallback para localStorage se a API falhar
+        const clientesSalvos = localStorage.getItem('paymate_clientes');
+        if (clientesSalvos) {
+            clientes = JSON.parse(clientesSalvos);
+            renderizarTabelaClientes();
+        }
+    }
+}
+
+// Função para atualizar a paginação (se aplicável)
+function atualizarPaginacao(paginaAtual, totalPaginas) {
+    // Implementar lógica de paginação aqui conforme sua necessidade
+    console.log(`Paginação: Página ${paginaAtual} de ${totalPaginas}`);
+}
