@@ -1,12 +1,13 @@
 // clientes.js - Sistema de gestão de clientes
 let clientes = []
 let sect = document.querySelector("#paginationClients")
-renderPagination(sect, "clientes")
+renderPagination()
 //
 sect.addEventListener("click", (event)=>{
     if(event.target.matches(".btn-genereted")){
         let page = parseInt(event.target.value);
         console.log("CLICOU EM ", page,"NA PAGINAÇÃO")
+        reOrderViewButtons(page)
         carregarClientes(page)
     }
 })
