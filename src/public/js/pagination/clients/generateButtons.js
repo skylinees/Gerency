@@ -7,6 +7,7 @@ function generateButtons(pages){
       btn.value = i
 
       allButtons.push(btn)
+      if(btn.value <= 5) buttonsToView.push(btn)
     }
   return allButtons
 }

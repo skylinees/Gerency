@@ -1,4 +1,5 @@
 const users = require("./modalUsers");
+const {Op} = require("sequelize") 
 
 async function formatDataClients (clients){
     let formatedData = []
@@ -54,4 +55,19 @@ async function getInforTableClients() {
     }catch(err){console.log("Erro ao consultar informação da paginação de clientes: ", err); return "err"}
 }
 
-module.exports = {newClient, getClientsPagination, getInforTableClients}
+async function getClientByName(data) {
+    let clients;
+    try{
+        clients = await users.findAll({
+            where:{
+                nome:{
+                    [Op.like] : `${data}%`
+                }
+            }
+        })
+    }catch(e){console.log("Erro a consultar cliente por")}
+    console.log("RESULTADO DA GET POR NOME", clients)
+    return await formatDataClients(clients)
+}
+
+module.exports = {newClient, getClientsPagination, getInforTableClients, getClientByName}

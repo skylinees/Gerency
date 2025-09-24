@@ -1,6 +1,11 @@
-let allButtonsClients = [];
+let allButtonsClients = []
+let buttonsToView = []
+function renderPagination(selected){
+  if(allButtonsClients.length == 0){
+    allButtonsClients = generateButtons(tableInfClients.totalPages)
+  }
 
-function renderPagination(){
-  allButtonsClients = generateButtons(tableInfClients.totalPages)
-  console.log(allButtonsClients)
+  reOrderViewButtons(selected)
+  sectClient.replaceChildren();
+  buttonsToView.forEach(button => sectClient.appendChild(button))
 }

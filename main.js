@@ -4,10 +4,9 @@ const path = require("node:path")
 //Db Imports
 const {initalConnectDb} = require("./database/config/connect")
 const {getAllContas} = require("./database/contas/operationsContas")
-const {newClient, getClientsPagination, getInforTableClients} = require("./database/users/operationsUsers")
+const {newClient, getClientsPagination, getInforTableClients, getClientByName} = require("./database/users/operationsUsers")
 
 const {template} = require("./windowSettings/toolBar")
-
 
 //Conexão inicial e ciração do banco de dados
 initalConnectDb()
@@ -30,7 +29,7 @@ function createMainWindow() {
     },
   })
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
-  win.loadFile('./src/views/index.html')
+  win.loadFile('./src/views/clientes.html')
 }
 
 app.whenReady().then(() => {
@@ -61,6 +60,7 @@ app.whenReady().then(() => {
       .catch(err => console.log("Erro ao consultar clientes paginados", err))
   })
 
+  //Get de table
   ipcMain.on("get-infor-table-request", (event, data)=>{
     switch(data){
       case "clients":
@@ -73,7 +73,15 @@ app.whenReady().then(() => {
       break;
     }
   })
+
+  //Search client by name
+  ipcMain.on("search-clients-by-name-request", (event, data)=>{
+    getClientByName(data)
+      .then(clients => event.reply("search-clients-by-name-reponse", clients))
+      .catch(err => console.log("Erro a buscar cliente por nome", err))
+  })
 })
+
 app.on("window-all-closed", () => {
   if (process.platform !== 'darwin') app.quit()
 })
