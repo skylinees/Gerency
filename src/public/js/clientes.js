@@ -413,6 +413,7 @@ function adicionarCampoBusca() {
             console.log("valor de input recebido...", termo)
             buscarClientesPorNome(termo);
             renderizarTabelaClientes(resultados);
+            removePagination()
         }
         
         btnLimpar.classList.toggle('hidden', termo.trim() === '');
