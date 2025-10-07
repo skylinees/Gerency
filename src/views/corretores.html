@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PayMate - Corretores</title>
+    <script src="../public/js/preload.js/preloadInfTable.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -12,13 +13,8 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
                             600: '#2563eb',
                             700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a'
                         }
                     }
                 }
@@ -26,28 +22,6 @@
         }
     </script>
     <style>
-        .status-badge {
-            transition: all 0.2s ease;
-        }
-        .status-badge:hover {
-            transform: scale(1.05);
-        }
-        tr {
-            transition: background-color 0.2s ease;
-        }
-        .sidebar {
-            scrollbar-width: thin;
-            scrollbar-color: #4b5563 #1f2937;
-        }
-        .dark .sidebar {
-            scrollbar-color: #d1d5db #f3f4f6;
-        }
-        .search-results-bar {
-            position: sticky;
-            top: 0;
-            z-index: 40;
-            transition: all 0.3s ease;
-        }
         .fade-in {
             animation: fadeIn 0.3s ease-in;
         }
@@ -57,9 +31,87 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200 h-screen flex flex-col">
+    
+    <!-- Modal para novo corretor -->
+    <div id="modal-novo-corretor" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold" id="modal-titulo">Novo Corretor</h3>
+                    <button id="fechar-modal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <form id="form-corretor" class="space-y-4">
+                    <input type="hidden" id="corretor-id">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome Completo</label>
+                        <input type="text" id="nome-corretor" required class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CPF</label>
+                        <input type="text" id="cpf-cnpj" required class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-mail</label>
+                        <input type="email" id="email-corretor" required class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefone</label>
+                        <input type="tel" id="telefone-corretor" required class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comissão (%)</label>
+                        <input type="number" step="0.1" id="comissao-corretor" required class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                    </div>
+                    
+                    <div id="status-field" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                        <select id="status-corretor" class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700">
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded">
+                            Cadastrar Corretor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação de exclusão -->
+    <div id="modal-confirmacao" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-4">Confirmar Exclusão</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">Tem certeza que deseja excluir este corretor? Esta ação não pode ser desfeita.</p>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Cancelar
+                    </button>
+                    <button type="button" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">
+                        Excluir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Barra de resultados da pesquisa -->
-    <div id="search-results-bar" class="search-results-bar hidden bg-blue-50 dark:bg-blue-900 border-b border-blue-200 dark:border-blue-700 py-3 px-6">
+    <div id="search-results-bar" class="hidden bg-blue-50 dark:bg-blue-900 border-b border-blue-200 dark:border-blue-700 py-3 px-6">
         <div class="flex justify-between items-center">
             <div class="flex items-center">
                 <span class="text-blue-700 dark:text-blue-200 font-medium">Resultados da pesquisa:</span>
@@ -75,17 +127,29 @@
         </div>
     </div>
 
+    <div class="fixed top-4 right-4 z-50">
+        <button id="theme-toggle" class="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
+            <svg id="theme-toggle-dark-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+            </svg>
+            <svg id="theme-toggle-light-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200 hidden" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2a1 1 0 011 1v1a1 1 0 01-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </div>
+
     <!-- Conteúdo principal -->
     <div class="flex flex-1 overflow-hidden">
+
         <!-- Barra lateral -->
-        <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+        <aside class="w-56 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
             <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="font-semibold text-lg text-gray-800 dark:text-white">PayMate</h2>
+                <h2 class="font-semibold text-lg">Menu</h2>
             </div>
-            <nav class="flex-1 overflow-y-auto p-2 sidebar">
+            <nav class="flex-1 overflow-y-auto p-2">
                 <ul>
                     <li class="mb-1">
-                        <a href="index.html" class="flex items-center p-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <a href="index.html" class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
@@ -93,7 +157,7 @@
                         </a>
                     </li>
                     <li class="mb-1">
-                        <a href="clientes.html" class="flex items-center p-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <a href="clientes.html" class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
@@ -101,7 +165,7 @@
                         </a>
                     </li>
                     <li class="mb-1">
-                        <a href="relatorios.html" class="flex items-center p-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <a href="relatorios.html" class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
@@ -109,9 +173,9 @@
                         </a>
                     </li>
                     <li class="mb-1">
-                        <a href="corretores.html" class="flex items-center p-2 text-blue-600 dark:text-blue-400 rounded-lg bg-gray-100 dark:bg-gray-700 transition-colors">
+                        <a href="corretores.html" class="flex items-center p-2 text-blue-600 dark:text-blue-400 rounded bg-gray-100 dark:bg-gray-700">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c极 0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 极 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 极 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                             Corretores
                         </a>
@@ -125,32 +189,20 @@
 
         <!-- Área de conteúdo -->
         <main class="flex-1 overflow-auto p-6 bg-gray-100 dark:bg-gray-900">
-            <!-- Botão de toggle de tema -->
-            <div class="fixed top-4 right-4 z-50">
-                <button id="theme-toggle" class="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                    <svg id="theme-toggle-dark-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200 hidden" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M17.293 13.293A8 极 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-                    </svg>
-                    <svg id="theme-toggle-light-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a1 1 0 011 1v1a1 1 0 01-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 极 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- CABEÇALHO -->
+            <!-- Cabeçalho -->
             <div class="mb-6 flex justify-between items-center">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Corretores</h2>
+                    <h2 class="text-2xl font-bold">Corretores</h2>
                     <div class="text-sm text-gray-500 dark:text-gray-400" id="data-atual"></div>
                 </div>
                 <div class="flex space-x-2">
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors" onclick="abrirModalNovoCorretor()">
+                    <button id="abrir-modal" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded flex items-center">
                         <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m极 0-6h6m-6 0H6" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
                         Novo Corretor
                     </button>
-                    <button class="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-lg flex items-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <button class="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded flex items-center">
                         <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -182,47 +234,33 @@
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nome</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">CPF/CNPJ</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray极 500 dark:text-gray-300 uppercase tracking-wider">Contato</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Corretor</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">CPF</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Contato</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Comissão</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="tabela-corretores">
-                            <!-- Os dados dos corretores serão carregados aqui -->
+                        <tbody id="tabela-corretores" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Linhas de corretores serão adicionadas aqui dinamicamente -->
                         </tbody>
                     </table>
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-700 px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-600">
                     <div class="flex-1 flex justify-between sm:hidden">
                         <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">Anterior</button>
-                        <button class="ml-3 relative inline-flex items-center px-4极 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">Próxima</button>
+                        <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">Próxima</button>
                     </div>
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p class="text-sm text-gray-700 dark:text-gray-300">
-                                Mostrando <span class="font-medium" id="inicio-registros">1</span> a <span class="font-medium" id="fim-registros">3</span> de <span class="font-medium" id="total-registros">12</span> resultados
+                                Mostrando <span class="font-medium">1</span> a <span class="font-medium">3</span> de <span class="font-medium" id="total-corretores">0</span> resultados
                             </p>
                         </div>
                         <div>
-                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <span class="sr-only">Anterior</span>
-                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                                <button aria-current="page" class="z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 dark:border-blue-700 text-blue-600 dark:text-blue-300 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</button>
-                                <button class="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</button>
-                                <button class="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</button>
-                                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <span class="sr-only">Próxima</span>
-                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414极 l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" id="paginationCorretores" aria-label="Pagination">
+                                <!-- Paginação será gerada dinamicamente -->
                             </nav>
                         </div>
                     </div>
@@ -230,71 +268,7 @@
             </div>
         </main>
     </div>
-
-    <!-- Modal para Novo Corretor -->
-    <div id="modal-novo-corretor" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white" id="modal-titulo">Adicionar Novo Corretor</h3>
-            </div>
-            <div class="px极 6 py-4">
-                <form id="form-corretor">
-                    <input type="hidden" id="corretor-id">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome Completo</label>
-                        <input type="text" id="nome-corretor" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CPF/CNPJ</label>
-                        <input type="text" id="cpf-cnpj" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-mail</label>
-                        <input type="email" id="email-corretor" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500 dark极 :focus:ring-blue-600 dark:focus:border-blue-600" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text极-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefone</label>
-                        <input type="tel" id="telefone-corretor" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comissão (%)</label>
-                        <input type="number" step="0.1" id="comissao-corretor" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600" required>
-                    </div>
-                    <div class="mb-4" id="status-field">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                        <select id="status-corretor" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600">
-                            <option value="ativo">Ativo</option>
-                            <option value="inativo">Inativo</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-2">
-                <button type="button" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" onclick="fecharModalNovoCorretor()">Cancelar</button>
-                <button type="button" id="btn-salvar-corretor" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="salvarCorretor()">Salvar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de confirmação -->
-    <div id="modal-confirmacao" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-            <div class="px-6 py-4 border极 b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Confirmar Exclusão</h3>
-            </div>
-            <div class="px-6 py-4">
-                <p class="text-gray-700 dark:text-gray-300">Tem certeza que deseja excluir este corretor? Esta ação não pode ser desfeita.</p>
-            </div>
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-2">
-                <button type="button" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" onclick="fecharModalConfirmacao()">Cancelar</button>
-                <button type="button" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" onclick="confirmarExclusao()">Excluir</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="../public/js/corretores.js">
-
-    </script>
+    
+    <script src="../public/js/corretores.js"></script>
 </body>
 </html>
