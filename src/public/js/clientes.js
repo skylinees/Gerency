@@ -437,10 +437,6 @@ function buscarClientesPorNome(termo) {
 }
 //
 
-
-
-
-
 function alternarCamposTipoCliente() {
     const tipo = elementos.selectTipo.value;
     const isPF = tipo === 'PF';
@@ -484,9 +480,13 @@ function atualizarData() {
 }
 
 function excluirCliente(id) {
-    clientes = clientes.filter(cliente => cliente.id !== id);
-    salvarClientesNoStorage();
-    renderizarTabelaClientes();
+    api.deleteClientRequest(id)
+    api.deleteClientResponse((_, data)=>{
+        if(data) alert("Erro ao exlcuir cliente...")
+        alert("Cliente excluido com sucesso...")
+        salvarClientesNoStorage()
+        renderizarTabelaClientes()
+    })
 }
 
 function salvarClientesNoStorage() {

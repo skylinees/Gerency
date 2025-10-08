@@ -4,7 +4,11 @@ const path = require("node:path")
 //Db Imports
 const {initalConnectDb} = require("./database/config/connect")
 const {getAllContas} = require("./database/contas/operationsContas")
-const {newClient, getClientsPagination, getInforTableClients, getClientByName} = require("./database/users/operationsUsers")
+const {
+  newClient, getClientsPagination, 
+  getInforTableClients, getClientByName,
+  deleteClient
+} = require("./database/users/operationsUsers")
 
 const {template} = require("./windowSettings/toolBar")
 
@@ -79,6 +83,18 @@ app.whenReady().then(() => {
     getClientByName(data)
       .then(clients => event.reply("search-clients-by-name-reponse", clients))
       .catch(err => console.log("Erro a buscar cliente por nome", err))
+  })
+
+  ipcMain.on("delete-clients-request", (event, data)=>{
+    deleteClient(data)
+      .then(response => event.reply("delete-clients-reponse", response))
+      .catch(err => console.log("Erro ao deletar cliente...", err))
+  })
+
+  ipcMain.on("edit-clients-request", (event, data)=>{
+    console.log("PROCESSO DE RENDERIZAÇÃO IPCMAIN -ENTRADA-...")
+    deleteClient()
+    console.log("PROCESSO DE RENDERIZAÇÃO IPCMAIN -SAIDA-...")
   })
 })
 

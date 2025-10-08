@@ -12,17 +12,24 @@ contextBridge.exposeInMainWorld("api", {
   syncClientsPgResponse: (data) => ipcRenderer.on("pagination-clients-response",data),
 
   //Register Cliente
-  newClientRequest: (data) => ipcRenderer.send("new-client-request", data), //Pega os dados do front e joga para back
-  newClientResponse: (data) => ipcRenderer.on("new-client-response", data),//Pega o retorno do back e lança pro front
+  newClientRequest: (data) => ipcRenderer.send("new-client-request", data),
+  newClientResponse: (data) => ipcRenderer.on("new-client-response", data),
 
   //Get de if tables
-  getInforTableRequest: (data) => ipcRenderer.send("get-infor-table-request", data), //Pega os dados do front e joga para back
-  getInforTableResponse: (data) => ipcRenderer.on("get-infor-table-response", data),//Pega o retorno do back e lança pro front
+  getInforTableRequest: (data) => ipcRenderer.send("get-infor-table-request", data),
+  getInforTableResponse: (data) => ipcRenderer.on("get-infor-table-response", data),
 
   //Get de clientes por nonme
   searchClientByNameRequest:  (data) => ipcRenderer.send("search-clients-by-name-request", data),
-  searchClientByNameResponse:  (data) => ipcRenderer.on("search-clients-by-name-reponse", data)
+  searchClientByNameResponse:  (data) => ipcRenderer.on("search-clients-by-name-reponse", data),
 
+  //Exluir clientes
+  deleteClientRequest:  (data) => ipcRenderer.send("delete-clients-request", data),
+  deleteClientResponse:  (data) => ipcRenderer.on("delete-clients-reponse", data),
+  
+  //Editar clientes com base no id
+  editClientRequest:  (data) => ipcRenderer.send("edit-clients-request", data),
+  editClientResponse:  (data) => ipcRenderer.on("edit-clients-reponse", data)
 })
 
 window.addEventListener("DOMContentLoaded", () => {
