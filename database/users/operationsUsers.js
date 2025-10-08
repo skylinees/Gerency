@@ -1,5 +1,6 @@
 const users = require("./modalUsers");
 const {Op} = require("sequelize") 
+const {bakcupDB} = require("../backup")
 
 async function formatDataClients (clients){
     let formatedData = []
@@ -70,4 +71,25 @@ async function getClientByName(data) {
     return await formatDataClients(clients)
 }
 
-module.exports = {newClient, getClientsPagination, getInforTableClients, getClientByName}
+async function deleteClient(id) {
+    bakcupDB();
+    try{
+        return result = await users.destroy({
+            where: {
+                id: id
+            }
+        })
+    }catch(e){console.log("Erro a exluir cliente...", e); return e}
+}
+
+async function editClient(data) {
+    console.log("PROCESSO DE RENDERIZAÇÃO DBHANDLER -ENTRADA-...")
+
+    console.log("PROCESSO DE RENDERIZAÇÃO DBHANDLER -SAIDA-...")
+}
+
+module.exports = {
+    newClient, getClientsPagination, 
+    getInforTableClients, getClientByName,
+    deleteClient, editClient
+}

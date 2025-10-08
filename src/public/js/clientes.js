@@ -39,7 +39,6 @@ function inicializarSistema() {
     
 }
 
-// Configurar event listeners unificados
 function configurarEventListeners() {
     const { abrirModalBtn, fecharModalBtn, selectTipo, formCliente, modalNovoCliente, sectClient } = elementos;
     
@@ -52,7 +51,7 @@ function configurarEventListeners() {
         if (e.target === modalNovoCliente) fecharModal();
     });
 
-    // Paginação - método original mantido
+    // Paginação
     sectClient.addEventListener("click", (event) => {
         if (event.target.matches(".btn-genereted")) {
             let page = event.target;
@@ -61,6 +60,43 @@ function configurarEventListeners() {
             carregarClientes(parseInt(page.value));
         }
     });
+
+    // Eventos da tabela (delegação unificada) - ATUALIZADA
+    elementos.tabelaClientes.addEventListener('click', (e) => {
+        const { target } = e;
+        
+        if (target.classList.contains('editar-cliente')) {
+            const id = parseInt(target.getAttribute('data-id'));
+            const cliente = clientes.find(c => c.id === id);
+            if (cliente) abrirModal(cliente);
+            
+            // EXTRAIR DADOS DO CLIENTE
+            const dadosCliente = extrairDadosCliente(target);
+            console.log('Dados do cliente para edição:', dadosCliente);
+        }
+        
+        if (target.classList.contains('excluir-cliente')) {
+            const id = parseInt(target.getAttribute('data-id'));
+            
+            // EXTRAIR DADOS DO CLIENTE ANTES DE EXCLUIR
+            const dadosCliente = extrairDadosCliente(target);
+            console.log('Dados do cliente para exclusão:', dadosCliente);
+            
+            if (confirm('Tem certeza que deseja excluir este cliente?')) {
+                excluirCliente(id);
+            }
+        }
+        
+        // NOVO: Capturar clique em qualquer lugar da linha para debug
+        if (target.matches('td') || target.matches('div') || target.matches('span')) {
+            const linha = target.closest('tr');
+            if (linha && !target.closest('button')) {
+                const dadosCliente = extrairDadosCliente(target);
+                console.log('Dados do cliente (clique na linha):', dadosCliente);
+            }
+        }
+    });
+}
 
     // Eventos da tabela (delegação unificada)
     elementos.tabelaClientes.addEventListener('click', (e) => {
@@ -77,7 +113,6 @@ function configurarEventListeners() {
             abrirModalConfirmacaoCliente(id);
         }
     });
-}
 
 // FUNÇÃO DE PAGINAÇÃO RESTAURADA (MÉTODO ORIGINAL)
 function renderPagination(page = null) {
@@ -470,10 +505,6 @@ function buscarClientesPorNome(termo) {
 }
 //
 
-
-
-
-
 function alternarCamposTipoCliente() {
     const tipo = elementos.selectTipo.value;
     const isPF = tipo === 'PF';
@@ -517,9 +548,13 @@ function atualizarData() {
 }
 
 function excluirCliente(id) {
-    clientes = clientes.filter(cliente => cliente.id !== id);
-    salvarClientesNoStorage();
-    renderizarTabelaClientes();
+    api.deleteClientRequest(id)
+    api.deleteClientResponse((_, data)=>{
+        if(data) alert("Erro ao exlcuir cliente...")
+        alert("Cliente excluido com sucesso...")
+        salvarClientesNoStorage()
+        renderizarTabelaClientes()
+    })
 }
 
 function salvarClientesNoStorage() {
@@ -597,4 +632,68 @@ function configurarTema() {
             localStorage.setItem('color-theme', 'dark');
         }
     });
+}
+
+// função extrair dados
+function extrairDadosCliente(target) {
+    
+    const linhaCliente = target.closest('tr');
+    
+    if (!linhaCliente) {
+        console.error('Linha do cliente não encontrada');
+        return null;
+    }
+    
+    // Extrair dados das células
+    const celulas = linhaCliente.querySelectorAll('td');
+    
+    // Nome e Email (primeira célula)
+    const primeiraCelula = celulas[0];
+    const nome = primeiraCelula.querySelector('.text-sm.font-medium')?.textContent || '';
+    const email = primeiraCelula.querySelector('.text-sm.text-gray-500')?.textContent || '';
+    
+    // Telefone (segunda célula)
+    const segundaCelula = celulas[1];
+    const telefone = segundaCelula.querySelector('.text-sm.text-gray-500')?.textContent || '';
+    
+    // Documento (terceira célula)
+    const documentoCelula = celulas[2];
+    const documento = documentoCelula.textContent.trim() || '';
+    
+    // Tipo (quarta célula)
+    const tipoCelula = celulas[3];
+    const tipoTexto = tipoCelula.textContent.trim();
+    const tipo = tipoTexto === 'Pessoa Física' ? 'PF' : 'PJ';
+    
+    // Status (quinta célula)
+    const statusCelula = celulas[4];
+    const status = statusCelula.querySelector('span')?.textContent.trim() || 'Ativo';
+    
+    // ID dos botões de ação
+    const botoesAcao = celulas[5];
+    const botaoEditar = botoesAcao.querySelector('.editar-cliente');
+    const id = botaoEditar ? parseInt(botaoEditar.getAttribute('data-id')) : null;
+    
+    let cpf = '';
+    let cnpj = '';
+    
+    if (tipo === 'PF') {
+        cpf = documento.replace(/\D/g, '');
+    } else {
+        cnpj = documento.replace(/\D/g, '');
+    }
+    
+    // JSON
+    const dadosCliente = {
+        id: id,
+        tipo: tipo,
+        nome: nome,
+        cpf: cpf,
+        cnpj: cnpj,
+        email: email,
+        telefone: telefone.replace(/\D/g, ''),
+        status: status
+    };
+    
+    return dadosCliente;
 }
