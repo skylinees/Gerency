@@ -1,6 +1,7 @@
 // clientes.js - Sistema de gestão de clientes (versão simplificada)
 let clientes = [];
 let clienteEditando = null;
+let clienteParaExcluir = null;
 let paginaAtual = 1;
 
 // Cache de elementos DOM
@@ -29,6 +30,13 @@ function inicializarSistema() {
     configurarEventListeners();
     configurarTema();
     adicionarCampoBusca();
+
+    const btnCancelar = document.getElementById('btn-cancelar-exclusao-cliente');
+    const btnConfirmar = document.getElementById('btn-confirmar-exclusao-cliente');
+
+    if (btnCancelar) btnCancelar.addEventListener('click', fecharModalConfirmacaoCliente);
+    if (btnConfirmar) btnConfirmar.addEventListener('click', confirmarExclusaoCliente);
+    
 }
 
 // Configurar event listeners unificados
@@ -66,9 +74,7 @@ function configurarEventListeners() {
         
         if (target.classList.contains('excluir-cliente')) {
             const id = parseInt(target.getAttribute('data-id'));
-            if (confirm('Tem certeza que deseja excluir este cliente?')) {
-                excluirCliente(id);
-            }
+            abrirModalConfirmacaoCliente(id);
         }
     });
 }
@@ -324,6 +330,33 @@ function fecharModal() {
     elementos.modalNovoCliente.classList.add('hidden');
     clienteEditando = null;
 }
+
+// criei aqui
+function abrirModalConfirmacaoCliente(id) {
+    clienteParaExcluir = id;
+    const modal = document.getElementById('modal-confirmacao-cliente');
+    if (modal) modal.classList.remove('hidden');
+}
+
+// criei aqui
+function fecharModalConfirmacaoCliente() {
+    const modal = document.getElementById('modal-confirmacao-cliente');
+    if (modal) modal.classList.add('hidden');
+    clienteParaExcluir = null;
+}
+
+// criei aqui
+function confirmarExclusaoCliente() {
+    if (clienteParaExcluir) {
+        excluirCliente(clienteParaExcluir);
+        fecharModalConfirmacaoCliente();
+    }
+}
+
+// Event listeners do modal
+//document.getElementById('btn-cancelar-exclusao-cliente').addEventListener('click', fecharModalConfirmacaoCliente);
+//document.getElementById('btn-confirmar-exclusao-cliente').addEventListener('click', confirmarExclusaoCliente);
+
 
 function salvarCliente(e) {
     e.preventDefault();
