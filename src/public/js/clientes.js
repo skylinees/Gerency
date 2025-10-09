@@ -90,24 +90,8 @@ function configurarEventListeners() {
     });
 }
 
-    // Eventos da tabela (delegação unificada)
-    elementos.tabelaClientes.addEventListener('click', (e) => {
-        const { target } = e;
-        
-        if (target.classList.contains('editar-cliente')) {
-            const id = parseInt(target.getAttribute('data-id'));
-            const cliente = clientes.find(c => c.id === id);
-            if (cliente) abrirModal(cliente);
-        }
-        
-        if (target.classList.contains('excluir-cliente')) {
-            const id = parseInt(target.getAttribute('data-id'));
-            if (confirm('Tem certeza que deseja excluir este cliente?')) {
-                excluirCliente(id);
-            }
-        }
-    });
-
+// Eventos da tabela (delegação unificada)
+    
 // FUNÇÃO DE PAGINAÇÃO RESTAURADA (MÉTODO ORIGINAL)
 function renderPagination(page = null) {
     const sectClient = elementos.sectClient;
@@ -514,14 +498,15 @@ function atualizarData() {
     dataElement.textContent = hoje.toLocaleDateString('pt-BR', options);
 }
 
-function excluirCliente(id) {
+function excluirCliente(id) { // 
+    let cont = 0
     api.deleteClientRequest(id)
     api.deleteClientResponse((_, data)=>{
-        if(data) alert("Erro ao exlcuir cliente...")
-        alert("Cliente excluido com sucesso...")
-        salvarClientesNoStorage()
-        renderizarTabelaClientes()
+        alert('cliente excluido')
+        carregarClientes();
+        
     })
+
 }
 
 function salvarClientesNoStorage() {
