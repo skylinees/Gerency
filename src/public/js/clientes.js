@@ -82,8 +82,9 @@ function configurarEventListeners() {
             const dadosCliente = extrairDadosCliente(target);
             console.log('Dados do cliente para exclusão:', dadosCliente);
             
-            if (confirm('Tem certeza que deseja excluir este cliente?')) {
+            if (abrirModalConfirmacaoCliente() == "confirma") {
                 excluirCliente(id);
+                fecharModalConfirmacaoCliente();
             }
         }
         
@@ -97,23 +98,6 @@ function configurarEventListeners() {
         }
     });
 }
-
-    // Eventos da tabela (delegação unificada)
-    elementos.tabelaClientes.addEventListener('click', (e) => {
-        const { target } = e;
-        
-        if (target.classList.contains('editar-cliente')) {
-            const id = parseInt(target.getAttribute('data-id'));
-            const cliente = clientes.find(c => c.id === id);
-            if (cliente) abrirModal(cliente);
-        }
-        
-        if (target.classList.contains('excluir-cliente')) {
-            const id = parseInt(target.getAttribute('data-id'));
-            abrirModalConfirmacaoCliente(id);
-        }
-    });
-
 // FUNÇÃO DE PAGINAÇÃO RESTAURADA (MÉTODO ORIGINAL)
 function renderPagination(page = null) {
     const sectClient = elementos.sectClient;
@@ -370,7 +354,12 @@ function fecharModal() {
 function abrirModalConfirmacaoCliente(id) {
     clienteParaExcluir = id;
     const modal = document.getElementById('modal-confirmacao-cliente');
+    let buttonsValue;
+    //TRANALHE AQUI PARA PEGAR O VALOR DO BOTÃO CLICADO
+    
+    //
     if (modal) modal.classList.remove('hidden');
+    return buttonValue;
 }
 
 // criei aqui
@@ -379,15 +368,6 @@ function fecharModalConfirmacaoCliente() {
     if (modal) modal.classList.add('hidden');
     clienteParaExcluir = null;
 }
-
-// criei aqui
-function confirmarExclusaoCliente() {
-    if (clienteParaExcluir) {
-        excluirCliente(clienteParaExcluir);
-        fecharModalConfirmacaoCliente();
-    }
-}
-
 // Event listeners do modal
 //document.getElementById('btn-cancelar-exclusao-cliente').addEventListener('click', fecharModalConfirmacaoCliente);
 //document.getElementById('btn-confirmar-exclusao-cliente').addEventListener('click', confirmarExclusaoCliente);
