@@ -1,3 +1,8 @@
+//DEV SETTINGS
+////////////
+const {insert20Users} =  require("./dev")
+//////////
+
 const { app, BrowserWindow, screen, Menu, shell, ipcMain } = require('electron')
 const path = require("node:path")
 
@@ -14,6 +19,11 @@ const {template} = require("./windowSettings/toolBar")
 
 //Conexão inicial e ciração do banco de dados
 initalConnectDb()
+
+//DEV SETTINGS
+////////
+insert20Users()
+///////
 
 function createMainWindow() {
   // Obtém as dimensões do monitor primário
