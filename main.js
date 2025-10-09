@@ -1,6 +1,6 @@
 //DEV SETTINGS
 ////////////
-const {insert20Users} =  require("./dev")
+//const {insert20Users} =  require("./dev")
 //////////
 
 const { app, BrowserWindow, screen, Menu, shell, ipcMain } = require('electron')
@@ -22,7 +22,7 @@ initalConnectDb()
 
 //DEV SETTINGS
 ////////
-insert20Users()
+//insert20Users()
 ///////
 
 function createMainWindow() {
