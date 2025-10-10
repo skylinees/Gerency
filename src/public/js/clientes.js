@@ -18,8 +18,24 @@ const elementos = {
     themeToggleDarkIcon: document.getElementById('theme-toggle-dark-icon'),
     themeToggleLightIcon: document.getElementById('theme-toggle-light-icon'),
     sectClient: document.querySelector("#paginationClients")
+    
 };
+function mostrarMensagemModal(texto) {
+    const modal = document.getElementById('modal-mensagem');
+    const textoDiv = document.getElementById('modal-mensagem-texto');
+    textoDiv.textContent = texto;
+    modal.classList.remove('hidden');
+}
 
+function fecharMensagemModal() {
+    const modal = document.getElementById('modal-mensagem');
+    modal.classList.add('hidden');
+}
+// Event listener para botão de fechar
+document.addEventListener('DOMContentLoaded', () => {
+    const btnFechar = document.getElementById('btn-fechar-mensagem');
+    if (btnFechar) btnFechar.addEventListener('click', fecharMensagemModal);
+});
 // Inicialização
 document.addEventListener('DOMContentLoaded', inicializarSistema);
 
@@ -77,15 +93,9 @@ function configurarEventListeners() {
         
         if (target.classList.contains('excluir-cliente')) {
             const id = parseInt(target.getAttribute('data-id'));
-            
-            // EXTRAIR DADOS DO CLIENTE ANTES DE EXCLUIR
             const dadosCliente = extrairDadosCliente(target);
             console.log('Dados do cliente para exclusão:', dadosCliente);
-            
-            if (abrirModalConfirmacaoCliente() == "confirma") {
-                excluirCliente(id);
-                fecharModalConfirmacaoCliente();
-            }
+            abrirModalConfirmacaoCliente(id); // Corrigido: passa o id
         }
         
         // NOVO: Capturar clique em qualquer lugar da linha para debug
@@ -354,15 +364,8 @@ function fecharModal() {
 function abrirModalConfirmacaoCliente(id) {
     clienteParaExcluir = id;
     const modal = document.getElementById('modal-confirmacao-cliente');
-    let buttonsValue;
-    //TRANALHE AQUI PARA PEGAR O VALOR DO BOTÃO CLICADO
-    
-    //
     if (modal) modal.classList.remove('hidden');
-    return buttonValue;
 }
-
-// criei aqui
 function fecharModalConfirmacaoCliente() {
     const modal = document.getElementById('modal-confirmacao-cliente');
     if (modal) modal.classList.add('hidden');
@@ -372,7 +375,12 @@ function fecharModalConfirmacaoCliente() {
 //document.getElementById('btn-cancelar-exclusao-cliente').addEventListener('click', fecharModalConfirmacaoCliente);
 //document.getElementById('btn-confirmar-exclusao-cliente').addEventListener('click', confirmarExclusaoCliente);
 
-
+function confirmarExclusaoCliente() {
+    if (clienteParaExcluir !== null) {
+        excluirCliente(clienteParaExcluir);
+        fecharModalConfirmacaoCliente();
+    }
+}
 function salvarCliente(e) {
     e.preventDefault();
     
@@ -530,10 +538,12 @@ function atualizarData() {
 function excluirCliente(id) {
     api.deleteClientRequest(id)
     api.deleteClientResponse((_, data)=>{
-        if(data) alert("Erro ao exlcuir cliente...")
-        alert("Cliente excluido com sucesso...")
-        salvarClientesNoStorage()
-        renderizarTabelaClientes()
+        if (data && data.error) {
+            mostrarMensagemModal("Erro ao excluir cliente...");
+        } else {
+            mostrarMensagemModal("Cliente excluído com sucesso...");
+            carregarClientes(paginaAtual); // Recarrega os dados reais da API
+        }
     })
 }
 
