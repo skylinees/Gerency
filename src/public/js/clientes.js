@@ -151,7 +151,6 @@ function renderPagination(page = null) {
 // Função unificada para carregar clientes
 function carregarClientes(page = 1) {
     paginaAtual = page;
-    
     try {
         api.syncClientsPgRequest(paginaAtual);
         api.syncClientsPgResponse((_, data) => {
@@ -167,7 +166,6 @@ function carregarClientes(page = 1) {
         });
     } catch (error) {
         console.error('Erro ao buscar clientes da API:', error);
-        carregarClientesDoLocalStorage();
     }
 }
 
@@ -215,18 +213,10 @@ function atualizarPaginacao(paginaAtual, totalPaginas) {
     }
 }
 
-function carregarClientesDoLocalStorage() {
-    const clientesSalvos = localStorage.getItem('paymate_clientes');
-    if (clientesSalvos) {
-        clientes = JSON.parse(clientesSalvos);
-        renderizarTabelaClientes();
-    }
-}
-
 // Função unificada para renderizar tabela
-function renderizarTabelaClientes(clientesParaExibir = null) {
+function renderizarTabelaClientes() {
     const { tabelaClientes, totalClientesSpan } = elementos;
-    const clientesExibicao = clientesParaExibir || clientes;
+    const clientesExibicao = clientes;
     
     tabelaClientes.innerHTML = '';
     totalClientesSpan.textContent = clientesExibicao.length;
@@ -235,7 +225,7 @@ function renderizarTabelaClientes(clientesParaExibir = null) {
         tabelaClientes.innerHTML = `
             <tr>
                 <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                    ${clientesParaExibir ? 'Nenhum cliente encontrado.' : 'Nenhum cliente cadastrado.'}
+                    ${clientes ? 'Nenhum cliente encontrado.' : 'Nenhum cliente cadastrado.'}
                 </td>
             </tr>
         `;
@@ -244,7 +234,8 @@ function renderizarTabelaClientes(clientesParaExibir = null) {
     
     const fragment = document.createDocumentFragment();
     
-    clientesExibicao.forEach(cliente => {
+    clientes.forEach(cliente => {
+        console.log("LOG DE FOR EACH RENDER TABLE----", cliente)
         fragment.appendChild(criarLinhaCliente(cliente));
     });
     
@@ -281,10 +272,10 @@ function criarLinhaCliente(cliente) {
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
             <div class="text-sm text-gray-900 dark:text-white">${cliente.email || 'Email não informado'}</div>
-            <div class="text-sm text-gray-500 dark:text-gray-400">${formatarTelefone(cliente.telefone) || 'Telefone não informado'}</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">${formatarTelefone(cliente.tell) || 'Telefone não informado'}</div>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-            ${documentoExibicao || 'Documento não informado'}
+            ${cliente.doc || 'Documento não informado'}
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
             ${cliente.tipo === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}
@@ -381,9 +372,10 @@ function confirmarExclusaoCliente() {
         fecharModalConfirmacaoCliente();
     }
 }
+
+// REGISTRAR CLIENTE..
 function salvarCliente(e) {
     e.preventDefault();
-    
     const formData = new FormData(elementos.formCliente);
     const cliente = {
         tipo: formData.get('tipo'),
@@ -393,22 +385,17 @@ function salvarCliente(e) {
         cnpj: formData.get('cnpj'),
         email: formData.get('email'),
         telefone: formData.get('telefone'),
-        status: 'Ativo',
-        id: clienteEditando ? clienteEditando.id : Date.now()
+        status: 'Ativo'
     };
-    
     if (!validarCliente(cliente)) return;
     
-    if (clienteEditando) {
-        const index = clientes.findIndex(c => c.id === clienteEditando.id);
-        if (index !== -1) clientes[index] = cliente;
-    } else {
-        clientes.push(cliente);
-    }
-    
-    salvarClientesNoStorage();
-    renderizarTabelaClientes();
-    fecharModal();
+    console.log("LOG DE REGISTRO...",cliente)
+    api.newClientRequest(cliente)
+    api.newClientResponse((_, data)=>{
+        console.log("CAINDO NO RESPONSE DE NEW-CLIENT")
+        renderizarTabelaClientes();
+        fecharModal();
+    })
 }
 
 function validarCliente(cliente) {
@@ -461,6 +448,7 @@ function adicionarCampoBusca() {
     const btnLimpar = document.getElementById('limpar-busca');
     
     campoBusca.addEventListener('keyup', (e) => {
+        console.log("EVENTO DE KEYUP DE BUSCA")
         const termo = e.target.value;
         if(e.key == "Enter" && termo == ""){
             carregarClientes()
@@ -487,8 +475,8 @@ function adicionarCampoBusca() {
 function buscarClientesPorNome(termo) {
     api.searchClientByNameRequest(termo)
     api.searchClientByNameResponse((_, data) =>{
-        console.log("RESULTADO DO GET DE CLIENTE POR NOME",data)
-        renderizarTabelaClientes(data);
+        clientes = data
+        renderizarTabelaClientes();
     })
 }
 //

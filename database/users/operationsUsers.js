@@ -8,7 +8,6 @@ async function formatDataClients (clients){
         //console.log(user.dataValues);
         formatedData.push(user.dataValues)
     });
-    console.log('---------------------',formatedData);
     return formatedData;
 }
 

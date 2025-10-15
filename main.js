@@ -1,6 +1,6 @@
 //DEV SETTINGS
 ////////////
-//const {insert20Users} =  require("./dev")
+const {insert20Users} =  require("./dev")
 //////////
 
 const { app, BrowserWindow, screen, Menu, shell, ipcMain } = require('electron')
@@ -22,7 +22,7 @@ initalConnectDb()
 
 //DEV SETTINGS
 ////////
-//insert20Users()
+insert20Users()
 ///////
 
 function createMainWindow() {
@@ -49,7 +49,7 @@ function createMainWindow() {
 app.whenReady().then(() => {
   createMainWindow()
 
-  //Client handler register
+  //REGISTRAR CLIENTES
   ipcMain.on("new-client-request", (event, data) => {
     console.log("REGISTRANDO CLIENTE")
     newClient(data)
@@ -68,6 +68,7 @@ app.whenReady().then(() => {
         .catch(err => console.log("Erro ao solicitar todas contas", err))
   })
 
+  // GET ALL CLIENTES
   ipcMain.on("pagination-clients-request", (event, data)=>{
     getClientsPagination(data)
       .then(response => event.reply("pagination-clients-response", response))
@@ -91,7 +92,7 @@ app.whenReady().then(() => {
   //Search client by name
   ipcMain.on("search-clients-by-name-request", (event, data)=>{
     getClientByName(data)
-      .then(clients => event.reply("search-clients-by-name-reponse", clients))
+      .then(clients => {console.log("DEBBUGER---",data) ; event.reply("search-clients-by-name-reponse", clients)})
       .catch(err => console.log("Erro a buscar cliente por nome", err))
   })
 
@@ -103,7 +104,7 @@ app.whenReady().then(() => {
 
   ipcMain.on("edit-clients-request", (event, data)=>{
     console.log("PROCESSO DE RENDERIZAÇÃO IPCMAIN -ENTRADA-...")
-    deleteClient()
+    
     console.log("PROCESSO DE RENDERIZAÇÃO IPCMAIN -SAIDA-...")
   })
 })
