@@ -88,7 +88,17 @@ function configurarEventListeners() {
             
             // EXTRAIR DADOS DO CLIENTE
             const dadosCliente = extrairDadosCliente(target);
+            //
+                
+            //
+
             console.log('Dados do cliente para edição:', dadosCliente);
+            // CHAMAR IPC DE MODIFICAÇÃO
+            api.editClientRequest(dadosCliente)
+            api.editClientResponse((_, data)=>{
+                if(data) console.log("CANAL DE EDIÇÃO ATIVO")
+            })
+            //
         }
         
         if (target.classList.contains('excluir-cliente')) {
@@ -298,12 +308,6 @@ function criarLinhaCliente(cliente) {
     return row;
 }
 
-// Resto do código mantido igual...
-// [As funções abrirModal, preencherFormularioCliente, fecharModal, salvarCliente, validarCliente, 
-//  adicionarCampoBusca, buscarClientesPorNome, alternarCamposTipoCliente, atualizarData, 
-//  excluirCliente, salvarClientesNoStorage, validarCPF, validarCNPJ, validarEmail, 
-//  formatarCPF, formatarCNPJ, formatarTelefone, configurarTema permanecem exatamente como estavam]
-
 // Funções de modal
 function abrirModal(cliente = null) {
     clienteEditando = cliente;
@@ -315,6 +319,9 @@ function abrirModal(cliente = null) {
         selectTipo.value = cliente.tipo;
         preencherFormularioCliente(cliente);
         document.querySelector('button[type="submit"]').textContent = 'Atualizar Cliente';
+        //
+
+        //
     } else {
         selectTipo.value = 'PF';
         document.querySelector('button[type="submit"]').textContent = 'Cadastrar Cliente';
@@ -327,23 +334,21 @@ function abrirModal(cliente = null) {
 function preencherFormularioCliente(cliente) {
     const campos = {
         nome: document.querySelector('input[name="nome"]'),
-        cpf: document.querySelector('input[name="cpf"]'),
-        razao_social: document.querySelector('input[name="razao_social"]'),
-        cnpj: document.querySelector('input[name="cnpj"]'),
+        doc: document.querySelector('input[name="cpf"]'),
         email: document.querySelector('input[name="email"]'),
         telefone: document.querySelector('input[name="telefone"]')
     };
     
     if (cliente.tipo === 'PF') {
         campos.nome.value = cliente.nome || '';
-        campos.cpf.value = cliente.cpf || '';
+        campos.cpf.value = cliente.doc || '';
     } else {
         campos.razao_social.value = cliente.razao_social || '';
         campos.cnpj.value = cliente.cnpj || '';
     }
     
     campos.email.value = cliente.email || '';
-    campos.telefone.value = cliente.telefone || '';
+    campos.telefone.value = cliente.tell || '';
 }
 
 function fecharModal() {
@@ -380,11 +385,9 @@ function salvarCliente(e) {
     const cliente = {
         tipo: formData.get('tipo'),
         nome: formData.get('nome'),
-        razao_social: formData.get('razao_social'),
-        cpf: formData.get('cpf'),
-        cnpj: formData.get('cnpj'),
+        doc: formData.get('cpf'),
         email: formData.get('email'),
-        telefone: formData.get('telefone'),
+        tell: formData.get('telefone'),
         status: 'Ativo'
     };
     if (!validarCliente(cliente)) return;
@@ -535,10 +538,6 @@ function excluirCliente(id) {
     })
 }
 
-function salvarClientesNoStorage() {
-    localStorage.setItem('paymate_clientes', JSON.stringify(clientes));
-}
-
 // Funções de validação e formatação
 function validarCPF(cpf) {
     if (!cpf) return false;
@@ -658,7 +657,7 @@ function extrairDadosCliente(target) {
     if (tipo === 'PF') {
         cpf = documento.replace(/\D/g, '');
     } else {
-        cnpj = documento.replace(/\D/g, '');
+        cpf = documento.replace(/\D/g, '');
     }
     
     // JSON
@@ -666,10 +665,9 @@ function extrairDadosCliente(target) {
         id: id,
         tipo: tipo,
         nome: nome,
-        cpf: cpf,
-        cnpj: cnpj,
+        doc: cpf,
         email: email,
-        telefone: telefone.replace(/\D/g, ''),
+        tell: telefone.replace(/\D/g, ''),
         status: status
     };
     

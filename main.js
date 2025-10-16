@@ -1,6 +1,6 @@
 //DEV SETTINGS
 ////////////
-const {insert20Users} =  require("./dev")
+//const {insert20Users} =  require("./dev")
 //////////
 
 const { app, BrowserWindow, screen, Menu, shell, ipcMain } = require('electron')
@@ -12,7 +12,7 @@ const {getAllContas} = require("./database/contas/operationsContas")
 const {
   newClient, getClientsPagination, 
   getInforTableClients, getClientByName,
-  deleteClient
+  deleteClient, editClient
 } = require("./database/users/operationsUsers")
 
 const {template} = require("./windowSettings/toolBar")
@@ -22,7 +22,7 @@ initalConnectDb()
 
 //DEV SETTINGS
 ////////
-insert20Users()
+//insert20Users()
 ///////
 
 function createMainWindow() {
@@ -103,9 +103,9 @@ app.whenReady().then(() => {
   })
 
   ipcMain.on("edit-clients-request", (event, data)=>{
-    console.log("PROCESSO DE RENDERIZAÇÃO IPCMAIN -ENTRADA-...")
-    
-    console.log("PROCESSO DE RENDERIZAÇÃO IPCMAIN -SAIDA-...")
+    editClient(data)
+      .then(response =>{event.reply("edit-clients-reponse", data)})
+      .catch(e => {console.log("ERRO AO EDITAR CLIENTE"); event.reply("edit-clients-reponse", true)})
   })
 })
 

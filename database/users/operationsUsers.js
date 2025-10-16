@@ -82,9 +82,31 @@ async function deleteClient(id) {
 }
 
 async function editClient(data) {
-    console.log("PROCESSO DE RENDERIZAÇÃO DBHANDLER -ENTRADA-...")
+   try{
+    let dataClient = await users.findByPk(data.id)
+    console.log("EDIT CLIENT----DADOS JA REGISTRADOS NO BANCO...", dataClient)
+    
+    let vetAll = [[Object.entries(data)],[Object.entries(dataClient.dataValues)]]
+    let before = vetAll[0][0]
+    let after = vetAll[1][0]
+ 
+    for(let c = 0; c < 6; c++){
+        if(before[c] != after[c]){
+            console.log("DIFERENTES")
+            console.log(before[c])
+            console.log(after[c])
+        }
+    }
 
-    console.log("PROCESSO DE RENDERIZAÇÃO DBHANDLER -SAIDA-...")
+    /*users.update(
+        {
+
+        },
+        {
+
+        }
+    )*/
+   }catch(err){console.log("ERRO AO EDITAR CLIENTE", err)}
 }
 
 module.exports = {
